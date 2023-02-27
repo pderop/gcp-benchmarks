@@ -1,8 +1,5 @@
-XX: TextPlain
-Trends
 # Servers shootout board
 ## Results
-XX: reactornetty-benchmark-1.0.x-SNAPSHOT
 
 | Application  | TextPlain | Trends |
 | ---  | :---: | :---: |
