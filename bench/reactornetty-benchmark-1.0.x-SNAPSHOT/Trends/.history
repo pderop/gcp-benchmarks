@@ -1,0 +1,3 @@
+reactor;reactor-netty;1.0.x;21bfb61467b6e558f1bce2c51897b108225f5f71
+reactor;reactor-core;3.4.x;75395eaebad5387baf01a568c8e6eab61ffde019
+netty;netty;4.1;59aa6e635b9996cf21cd946e64353270679adc73
