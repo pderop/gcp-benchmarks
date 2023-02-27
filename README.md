@@ -1,9 +1,12 @@
+XX: TextPlain
+Trends
 # Servers shootout board
 ## Results
+XX: reactornetty-benchmark-1.0.x-SNAPSHOT
 
-| Application  | TextPlain |
-| ---  | :---: |
-| reactornetty-benchmark-1.0.x-SNAPSHOT | [**result**](/tmp/gcp-benchmarks/bench/reactornetty-benchmark-1.0.x-SNAPSHOT/TextPlain/index.html) |
+| Application  | TextPlain | Trends |
+| ---  | :---: | :---: |
+| reactornetty-benchmark-1.0.x-SNAPSHOT | [**result**](/tmp/gcp-benchmarks/bench/reactornetty-benchmark-1.0.x-SNAPSHOT/TextPlain/index.html) | [**result**](/tmp/gcp-benchmarks/bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Trends/index.html) |
 
 ## Scenario
 
