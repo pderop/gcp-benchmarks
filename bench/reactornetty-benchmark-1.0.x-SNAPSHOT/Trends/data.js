@@ -170,33 +170,6 @@ window.BENCHMARK_DATA = {
             "username": "pderop",
             "email": "pderop@vmware.com"
           },
-          "id": "4286475195",
-          "message": "No new commit since last benchmark.",
-          "timestamp": "2023-02-27T20:19:58Z",
-          "url": "https://github.com/pderop/gcp-benchmarks/actions/runs/4286475195"
-        },
-        "date": 1677529408373,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "-TextPlain",
-            "value": 16999.067,
-            "unit": "mean requests/sec"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "Pierre De Rop",
-            "username": "pderop",
-            "email": "pderop@vmware.com"
-          },
-          "committer": {
-            "name": "Pierre De Rop",
-            "username": "pderop",
-            "email": "pderop@vmware.com"
-          },
           "id": "4286625963",
           "message": "No new commit since last benchmark.",
           "timestamp": "2023-02-27T20:37:12Z",
