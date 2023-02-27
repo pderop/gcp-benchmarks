@@ -1,9 +1,9 @@
 # Servers shootout board
 ## Results
 
-| Application  | TextPlain | Trends |
-| ---  | :---: | :---: |
-| reactornetty-benchmark-1.0.x-SNAPSHOT | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/TextPlain/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Trends/index.html) |
+| Application  | Echo | HtmlGet | JsonGet | JsonPost | TextPlain | Trends |
+| ---  | :---: | :---: | :---: | :---: | :---: | :---: |
+| reactornetty-benchmark-1.0.x-SNAPSHOT | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Echo/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/HtmlGet/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/JsonGet/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/JsonPost/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/TextPlain/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Trends/index.html) |
 
 ## Scenario
 

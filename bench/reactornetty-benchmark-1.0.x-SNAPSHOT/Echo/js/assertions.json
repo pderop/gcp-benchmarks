@@ -1,0 +1,10 @@
+{
+  "simulation": "Echo",
+  "simulationId": "echo-20230227145454061",
+  "start": 1677509696245,
+  "description": "Benchmark for reactornetty-benchmark-1.0.x-SNAPSHOT:Echo",
+  "scenarios": ["Send text to an echo endpoint"],
+  "assertions": [
+
+  ]
+}

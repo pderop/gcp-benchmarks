@@ -1,0 +1,10 @@
+{
+  "simulation": "JsonPost",
+  "simulationId": "jsonpost-20230227145802298",
+  "start": 1677509885021,
+  "description": "Benchmark for reactornetty-benchmark-1.0.x-SNAPSHOT:JsonPost",
+  "scenarios": ["Post JSON and receive JSON payload"],
+  "assertions": [
+
+  ]
+}

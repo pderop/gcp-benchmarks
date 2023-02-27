@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1677497691806,
+  "lastUpdate": 1677510058672,
   "repoUrl": "https://github.com/pderop/gcp-benchmarks",
   "entries": {
     "Trends for reactornetty-benchmark-1.0.x-SNAPSHOT": [
@@ -53,6 +53,53 @@ window.BENCHMARK_DATA = {
           {
             "name": "reactornetty-benchmark-1.0.x-SNAPSHOT-TextPlain",
             "value": "16465.917",
+            "unit": "mean requests/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Pierre De Rop",
+            "username": "pderop",
+            "email": "pderop@vmware.com"
+          },
+          "committer": {
+            "name": "Pierre De Rop",
+            "username": "pderop",
+            "email": "pderop@vmware.com"
+          },
+          "id": "4283637879",
+          "message": "New commits since last benchmark:\n\n\thttps://github.com/reactor/reactor-netty/compare/21bfb61467b6e558f1bce2c51897b108225f5f71..182a4fb249102b7e84fe929d632f89cfbfb75ae6",
+          "timestamp": "2023-02-27T14:56:06Z",
+          "url": "https://github.com/pderop/gcp-benchmarks/actions/runs/4283637879"
+        },
+        "date": 1677510058275,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "reactornetty-benchmark-1.0.x-SNAPSHOT-TextPlain",
+            "value": "16987.267",
+            "unit": "mean requests/sec"
+          },
+          {
+            "name": "reactornetty-benchmark-1.0.x-SNAPSHOT-Echo",
+            "value": "4430.45",
+            "unit": "mean requests/sec"
+          },
+          {
+            "name": "reactornetty-benchmark-1.0.x-SNAPSHOT-JsonGet",
+            "value": "5587.7",
+            "unit": "mean requests/sec"
+          },
+          {
+            "name": "reactornetty-benchmark-1.0.x-SNAPSHOT-JsonPost",
+            "value": "3838.3",
+            "unit": "mean requests/sec"
+          },
+          {
+            "name": "reactornetty-benchmark-1.0.x-SNAPSHOT-HtmlGet",
+            "value": "3968.617",
             "unit": "mean requests/sec"
           }
         ]
