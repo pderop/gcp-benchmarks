@@ -1,0 +1,10 @@
+{
+  "simulation": "TextPlain",
+  "simulationId": "textplain-20230227210506766",
+  "start": 1677531907691,
+  "description": "Benchmark for reactornetty-benchmark-2.0.x-SNAPSHOT:TextPlain",
+  "scenarios": ["Receive plain Text"],
+  "assertions": [
+
+  ]
+}
