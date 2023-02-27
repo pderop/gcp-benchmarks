@@ -1,9 +1,9 @@
 # Servers shootout board
 ## Results
 
-| Application  | TextPlain | Trends |
-| ---  | :---: | :---: |
-| reactornetty-benchmark-1.0.x-SNAPSHOT | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/TextPlain/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Trends/index.html) |
+| Application  | TextPlain |
+| ---  | :---: |
+| reactornetty-benchmark-1.0.x-SNAPSHOT | [**result**](/tmp/gcp-benchmarks/bench/reactornetty-benchmark-1.0.x-SNAPSHOT/TextPlain/index.html) |
 
 ## Scenario
 
