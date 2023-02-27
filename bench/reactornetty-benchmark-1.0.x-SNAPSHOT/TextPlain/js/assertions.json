@@ -1,7 +1,7 @@
 {
   "simulation": "TextPlain",
-  "simulationId": "textplain-20230227103755653",
-  "start": 1677494276784,
+  "simulationId": "textplain-20230227113307927",
+  "start": 1677497589003,
   "description": "Benchmark for reactornetty-benchmark-1.0.x-SNAPSHOT:TextPlain",
   "scenarios": ["Receive plain Text"],
   "assertions": [
