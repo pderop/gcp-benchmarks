@@ -1,9 +1,10 @@
 # Servers shootout board
 ## Results
 
-| Application  | Echo | HtmlGet | JsonGet | JsonPost | TextPlain | Trends |
-| ---  | :---: | :---: | :---: | :---: | :---: | :---: |
-| reactornetty-benchmark-1.0.x-SNAPSHOT | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Echo/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/HtmlGet/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/JsonGet/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/JsonPost/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/TextPlain/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Trends/index.html) |
+| Application  | Echo | HtmlGet | JsonGet | JsonPost | TextPlain | Trends | index.html | js | req_plain-text-10504.html | style |
+| ---  | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| TextPlain | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |
+| reactornetty-benchmark-1.0.x-SNAPSHOT | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Echo/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/HtmlGet/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/JsonGet/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/JsonPost/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/TextPlain/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Trends/index.html) | n/a | n/a | n/a | n/a |
 
 ## Scenario
 
