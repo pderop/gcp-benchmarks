@@ -94,7 +94,7 @@ jobs:
           case "$app" in 
             "reactornetty-benchmark-1.0.x-SNAPSHOT") repos="reactor;reactor-netty;1.0.x reactor;reactor-core;3.4.x";;
             "reactornetty-benchmark-1.1.x-SNAPSHOT") repos="reactor;reactor-netty;main reactor;reactor-core;main";;
-            "reactornetty-benchmark-2.0.x-SNAPSHOT") repos="reactor;reactor-netty;netty5 reactor;reactor-core;main netty:netty:main";;
+            "reactornetty-benchmark-2.0.x-SNAPSHOT") repos="reactor;reactor-netty;netty5 reactor;reactor-core;main netty;netty;main";;
           esac
           echo "APP=$app" >> $GITHUB_OUTPUT
           git checkout gh-pages
