@@ -84,6 +84,7 @@ jobs:
       - name: Configure App to benchmark
         id: init
         run: |-
+          . .github/scripts/libs.sh
           case "${{ github.event.schedule }}" in
             "0 0 * * *") app="reactornetty-benchmark-1.0.x-SNAPSHOT";;
             "0 1 * * *") app="reactornetty-benchmark-1.1.x-SNAPSHOT";;
@@ -94,8 +95,7 @@ jobs:
             "reactornetty-benchmark-1.1.x-SNAPSHOT") repos="reactor;reactor-netty;main reactor;reactor-core;main";;
             "reactornetty-benchmark-2.0.x-SNAPSHOT") repos="reactor;reactor-netty;netty5 reactor;reactor-core;main netty:netty:main";;
           esac
-          echo "APP=$app" >> >> $GITHUB_OUTPUT
-          . .github/scripts/libs.sh
+          echo "APP=$app" >> $GITHUB_OUTPUT
           git checkout gh-pages
           check_for_new_commits "$repos" bench/$app/Trends/.history $GITHUB_OUTPUT
           git checkout main
