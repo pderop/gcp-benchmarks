@@ -70,7 +70,7 @@ jobs:
       changed: ${{ steps.init.outputs.CHANGED }}
       commits: ${{ steps.init.outputs.COMMITS }}
       commits_diff: ${{ steps.init.outputs.COMMITS_DIFF }}
-      app: ${{ steps.configure_app.outputs.APP }}
+      app: ${{ steps.init.outputs.APP }}
 
     steps:
       - uses: actions/checkout@v3
