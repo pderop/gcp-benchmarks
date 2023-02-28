@@ -1,0 +1,295 @@
+name: benchmark-deploy
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # reactor-netty-1.0.x-SNAPSHOT
+    - cron: '0 1 * * *' # reactor-netty-1.1.x-SNAPSHOT
+    - cron: '0 2 * * *' # reactor-netty-2.0.x-SNAPSHOT
+  workflow_dispatch:
+    inputs:
+      app:
+        type: choice
+        description: Select the server application to test
+        default: 'reactornetty-benchmark-1.0.x-SNAPSHOT'
+        required: true
+        options:
+          - reactornetty-benchmark-1.0.x-SNAPSHOT
+          - reactornetty-benchmark-1.1.x-SNAPSHOT
+          - reactornetty-benchmark-2.0.x-SNAPSHOT
+      simulations:
+        description: 'List of simulation applications:'
+        required: false
+        type: string
+        default: 'TextPlain;Echo;JsonGet;JsonPost'
+      duration:
+        description: 'Test duration (in minutes):'
+        required: false
+        type: string
+        default: '5'
+      increment:
+        description: 'Gatling increment:'
+        required: false
+        type: string
+        default: '128'
+      steps:
+        description: 'Gatling steps:'
+        required: false
+        type: string
+        default: '32'
+      alert-threshold:
+        description: 'Alert threshold like "150%". Percentage indicating how worse the current benchmark result is, e.g: 150% means that an alert happens when current benchmark result is 1.5x worse than previous:'
+        required: false
+        type: string
+        default: '125%'
+      force-bench:
+        type: boolean
+        description: Forces benchmark even if there's no changes
+        default: true
+        required: false
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  SERVER_INSTANCE: ${{ vars.SERVER_INSTANCE }}
+  CLIENT_INSTANCE: ${{ vars.CLIENT_INSTANCE }}
+  BUCKET: ${{ vars.BUCKET }}
+  ZONE: ${{ vars.ZONE }}
+  MACHINE_TYPE: ${{ vars.MACHINE_TYPE }}
+  SIMULATIONS: ${{ inputs.simulations || vars.SIMULATIONS }}
+  INCREMENT: ${{ inputs.increment || vars.INCREMENT }}
+  DURATION: ${{ inputs.duration || vars.DURATION }}
+  STEPS: ${{ inputs.steps || vars.STEPS }}
+  ALERT_THRESHOLD: ${{ inputs.alert-threshold || vars.ALERT_THRESHOLD }}
+  BRANCH: main
+
+jobs:
+
+  init-benchmark:
+    name: Initialize benchmark
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.init.outputs.CHANGED }}
+      commits: ${{ steps.init.outputs.COMMITS }}
+      commits_diff: ${{ steps.init.outputs.COMMITS_DIFF }}
+      app: ${{ steps.configure_app.outputs.APP }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: 'gh-pages'
+
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH }}
+
+      - name: Configure App to benchmark
+        id: init
+        run: |-
+          case "${{ github.event.schedule }}" in
+            "0 0 * * *") app="reactornetty-benchmark-1.0.x-SNAPSHOT";;
+            "0 1 * * *") app="reactornetty-benchmark-1.1.x-SNAPSHOT";;
+            "0 2 * * *") app="reactornetty-benchmark-2.0.x-SNAPSHOT";;
+          esac
+          case "$app" in 
+            "reactornetty-benchmark-1.0.x-SNAPSHOT") repos="reactor;reactor-netty;1.0.x reactor;reactor-core;3.4.x";;
+            "reactornetty-benchmark-1.1.x-SNAPSHOT") repos="reactor;reactor-netty;main reactor;reactor-core;main";;
+            "reactornetty-benchmark-2.0.x-SNAPSHOT") repos="reactor;reactor-netty;netty5 reactor;reactor-core;main netty:netty:main";;
+          esac
+          echo "APP=$app" >> >> $GITHUB_OUTPUT
+          . .github/scripts/libs.sh
+          git checkout gh-pages
+          check_for_new_commits "$repos" bench/$app/Trends/.history $GITHUB_OUTPUT
+          git checkout main
+
+  run-benchmark:
+    name: Deploy benchmark
+    needs: init-benchmark
+    if: needs.init-benchmark.outputs.changed == 'true' || github.event.inputs.force-bench == 'true'
+    runs-on: ubuntu-latest
+    env:
+      APP: ${{ needs.init-benchmark.outputs.app }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: 'gh-pages'
+
+      - uses: actions/checkout@v3
+        with:
+          ref:  ${{ env.BRANCH }}
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # GCP authentication via credentials json (TODO replace by OpenId)
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Maven Compile
+        run: mvn --quiet -B package --file pom.xml
+
+      - name: Copy application to server bucket
+        run: |-
+          jarfile=$(find . -name "$APP.jar") 
+          gsutil cp $jarfile gs://$BUCKET/apps/;
+
+      # Create the server VM
+      - name: Create Server
+        run: |-
+          gcloud compute instances create-with-container $SERVER_INSTANCE \
+            --machine-type=$MACHINE_TYPE \
+            --scopes="userinfo-email,storage-rw" \
+            --zone=$ZONE \
+            --tags=benchmark-tag \
+            --network=default \
+            --container-image=gcr.io/$PROJECT_ID/$SERVER_INSTANCE-image:latest \
+            --container-restart-policy=never \
+            --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$APP \
+            > /dev/null 2>&1
+
+      # Create client VM which will start benchmark
+      - name: Create Client
+        run: |-
+          INTERNAL_IP=`gcloud compute instances list --filter="name=$SERVER_INSTANCE" --format='value(networkInterfaces[0].networkIP)'`
+          gcloud compute instances create-with-container $CLIENT_INSTANCE \
+            --machine-type=$MACHINE_TYPE \
+            --scopes="userinfo-email,storage-rw" \
+            --zone=$ZONE \
+            --tags=benchmark-tag \
+            --network=default \
+            --container-image=gcr.io/$PROJECT_ID/$CLIENT_INSTANCE-image:latest \
+            --container-restart-policy=never \
+            --container-env="BUCKET=$BUCKET,SERVER_HOST=${INTERNAL_IP}:8080,SIMULATIONS=$SIMULATIONS,INCREMENT=$INCREMENT,STEPS=$STEPS,DURATION=$DURATION,APP=$APP" \
+            > /dev/null 2>&1
+
+      # Wait for the results (one zip file for the application + gh-benchmark.json) (add 10 minutes for each test to let gatling be able to collect results)
+      - name: Wait for test result
+        run: |-
+          nr_simulations=0
+          for simulation in $(echo ${SIMULATIONS} | tr ";" "\n"); do
+            nr_simulations=$(expr $nr_simulations + 1)
+          done
+          max_wait=$(expr $DURATION \* $nr_simulations)
+          delta=$(expr 10 \* $nr_simulations)
+          max_wait=$(expr $max_wait + $delta)
+          .github/scripts/wait-for-gs-bucket-file.sh gs://$BUCKET/results 2 $max_wait
+          gsutil cp gs://$BUCKET/results/gh-benchmark.json .
+
+      # Compute performance trends and send an alert in case of performance regression
+      - name: Generate trends report
+        uses: benchmark-action/github-action-benchmark@v1.15.0
+        with:
+          name: Trends for ${{ env.APP }}
+          tool: 'customBiggerIsBetter'
+          output-file-path: ./gh-benchmark.json
+          benchmark-data-dir-path: bench/${{ env.APP }}/Trends
+          max-items-in-chart: 100
+          auto-push: false
+          alert-threshold: ${{ env.ALERT_THRESHOLD }}
+          fail-threshold: ${{ env.ALERT_THRESHOLD }}
+          fail-on-alert: true
+          comment-on-alert: false
+          github-token: ${{ secrets.ACTION_BENCHMARK_TOKEN }}
+
+      - name: Prepare results
+        run: |-
+          . .github/scripts/libs.sh
+          git checkout gh-pages
+          gsutil cp gs://$BUCKET/results/bench.tgz .
+          tar zxvf bench.tgz
+          rm -f bench.tgz
+          build-results-readme bench > README.md
+
+      - name: Upload results
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: |
+            README.md
+            bench
+          if-no-files-found: warn
+          retention-days: 90
+
+  store-results-in-gh-pages:
+    name: Store results in gh-pages
+    needs: [ init-benchmark, run-benchmark ]
+    if: github.event.workflow_run.conclusion == 'cancelled' || needs.init-benchmark.outputs.changed == 'true' || github.event.inputs.force-bench == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      CI_COMMIT_MESSAGE: Benchmarks trend
+      CI_COMMIT_AUTHOR: ${{ github.event.repository.name }} Benchmarks
+      CI_COMMIT_EMAIL: $GITHUB_TRIGGERING_ACTOR@users.noreply.github.com
+      APP: ${{ needs.init-benchmark.outputs.app }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: 'gh-pages'
+
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH }}
+
+      - name: Download results
+        uses: actions/download-artifact@v3
+        with:
+          name: results
+          path: tmp
+
+      - name: Commit results
+        id: commit-results
+        run: |-
+          . .github/scripts/libs.sh            
+          cp .github/scripts/benchmark-index-template.html /tmp
+          git checkout gh-pages
+          ls tmp
+          \cp -fR tmp/* .
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "${{ env.CI_COMMIT_EMAIL }}"
+          update_benchmark_history bench/$APP/Trends/.history "${{ needs.init-benchmark.outputs.commits }}" 
+          transform_benchmark_json_data bench/$APP/Trends/data.js "Trends for $APP" "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" $GITHUB_RUN_ID "${{ needs.init-benchmark.outputs.commits_diff }}" 
+          cp -f /tmp/benchmark-index-template.html bench/$APP/Trends/index.html
+          git add bench
+          git add README.md
+          git commit --allow-empty -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push origin gh-pages:gh-pages
+
+  # Always cleanup GCP resources if we could archive test results
+  cleanup-benchmark:
+    name: Delete GCP resources
+    needs: [ init-benchmark, run-benchmark, store-results-in-gh-pages ]
+    runs-on: ubuntu-latest
+    if: (needs.init-benchmark.outputs.changed == 'true' || github.event.inputs.force-bench == 'true') && needs.store-results-in-gh-pages.result == 'success'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref:  ${{ env.BRANCH }}
+
+      # GCP authentication via credentials json (TODO replace by OpenId)
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Cleanup GCP resources
+        run: |-
+          gcloud compute instances delete $CLIENT_INSTANCE --quiet --zone $ZONE | echo
+          gcloud compute instances delete $SERVER_INSTANCE --quiet --zone $ZONE | echo
+          gsutil rm -f gs://$BUCKET/apps/* | echo
+          gsutil rm -f gs://$BUCKET/results/* | echo
+
