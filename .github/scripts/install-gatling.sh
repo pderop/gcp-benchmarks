@@ -19,7 +19,7 @@ curl -LsS https://repo1.maven.org/maven2/io/gatling/highcharts/gatling-charts-hi
 unzip gatling.zip
 mv gatling-charts-highcharts-bundle-3.9.2 gatling
 rm -rf gatling/user-files/simulations gatling.zip
-cp -r $SCRIPT_DIR/../containers/client/gatling/simulations gatling/user-files/
+cp -r $SCRIPT_DIR/../../containers/client/gatling/simulations gatling/user-files/
 cd gatling
 cat <<EOF > run.sh
 #!/bin/bash
