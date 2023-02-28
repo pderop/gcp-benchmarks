@@ -89,6 +89,7 @@ jobs:
             "0 0 * * *") app="reactornetty-benchmark-1.0.x-SNAPSHOT";;
             "0 1 * * *") app="reactornetty-benchmark-1.1.x-SNAPSHOT";;
             "0 2 * * *") app="reactornetty-benchmark-2.0.x-SNAPSHOT";;
+            *) app=${{ inputs.app }}
           esac
           case "$app" in 
             "reactornetty-benchmark-1.0.x-SNAPSHOT") repos="reactor;reactor-netty;1.0.x reactor;reactor-core;3.4.x";;
