@@ -74,7 +74,7 @@ check_for_new_commits() {
 
   # if we don't have any history of previous commits, consider we have some changes
   if [ ! -f $history_file ]; then
-    echo "::notice:: no previous commits found in hostory file, will trigger a new benchmark"
+    echo "::notice:: no previous commits found in history file, will trigger a new benchmark"
     echo "CHANGED=true" >>$output
   else
     # get the diff between the previous commits and the current commits, and if there is one diff,
