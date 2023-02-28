@@ -1,10 +1,10 @@
 name: benchmark-deploy
 
 on:
-  schedule:
-    - cron: '0 0 * * *' # reactor-netty-1.0.x-SNAPSHOT
-    - cron: '0 1 * * *' # reactor-netty-1.1.x-SNAPSHOT
-    - cron: '0 2 * * *' # reactor-netty-2.0.x-SNAPSHOT
+#  schedule:
+#    - cron: '0 0 * * *' # reactor-netty-1.0.x-SNAPSHOT
+#    - cron: '0 1 * * *' # reactor-netty-1.1.x-SNAPSHOT
+#    - cron: '0 2 * * *' # reactor-netty-2.0.x-SNAPSHOT
   workflow_dispatch:
     inputs:
       app:
