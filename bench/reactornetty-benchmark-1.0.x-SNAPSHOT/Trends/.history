@@ -1,2 +1,2 @@
-reactor;reactor-netty;1.0.x;1
+reactor;reactor-netty;1.0.x;228b499e26187db2e80b03e291ce747787ae9bc2
 reactor;reactor-core;3.4.x;569eb5727aeecbf9dd693c268b4dbc77ee6c189a
