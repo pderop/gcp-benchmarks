@@ -3,7 +3,7 @@
 
 | Application  | TextPlain | Trends |
 | ---  | :---: | :---: |
-| reactornetty-benchmark-1.0.x-SNAPSHOT | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/TextPlain/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Trends/index.html) |
+| reactor-netty-1.0.x | [**result**](bench/reactor-netty-1.0.x/TextPlain/index.html) | [**result**](bench/reactor-netty-1.0.x/Trends/index.html) |
 
 ## Scenario
 
