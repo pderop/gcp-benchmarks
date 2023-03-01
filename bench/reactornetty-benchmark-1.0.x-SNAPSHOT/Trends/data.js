@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1677660798447,
+  "lastUpdate": 1677688558799,
   "repoUrl": "https://github.com/pderop/gcp-benchmarks",
   "entries": {
     "Trends for reactornetty-benchmark-1.0.x-SNAPSHOT": [
@@ -26,6 +26,33 @@ window.BENCHMARK_DATA = {
           {
             "name": "reactornetty-benchmark-1.0.x-SNAPSHOT-TextPlain",
             "value": 16931.483,
+            "unit": "mean requests/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Pierre De Rop",
+            "username": "pderop",
+            "email": "pderop@vmware.com"
+          },
+          "committer": {
+            "name": "Pierre De Rop",
+            "username": "pderop",
+            "email": "pderop@vmware.com"
+          },
+          "id": "4305730264",
+          "message": "New commits since last benchmark:\n\n\thttps://github.com/reactor/reactor-netty/compare/3ad09cbcd2f0d8b08ae4066b6eada21b9f221e92..228b499e26187db2e80b03e291ce747787ae9bc2",
+          "timestamp": "2023-03-01T16:29:53Z",
+          "url": "https://github.com/pderop/gcp-benchmarks/actions/runs/4305730264"
+        },
+        "date": 1677688557856,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "reactornetty-benchmark-1.0.x-SNAPSHOT-TextPlain",
+            "value": 20646.9,
             "unit": "mean requests/sec"
           }
         ]
