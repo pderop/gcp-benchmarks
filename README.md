@@ -4,8 +4,6 @@
 | Application  | TextPlain | Trends |
 | ---  | :---: | :---: |
 | reactornetty-benchmark-1.0.x-SNAPSHOT | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/TextPlain/index.html) | [**result**](bench/reactornetty-benchmark-1.0.x-SNAPSHOT/Trends/index.html) |
-| reactornetty-benchmark-1.1.x-SNAPSHOT | [**result**](bench/reactornetty-benchmark-1.1.x-SNAPSHOT/TextPlain/index.html) | [**result**](bench/reactornetty-benchmark-1.1.x-SNAPSHOT/Trends/index.html) |
-| reactornetty-benchmark-2.0.x-SNAPSHOT | [**result**](bench/reactornetty-benchmark-2.0.x-SNAPSHOT/TextPlain/index.html) | [**result**](bench/reactornetty-benchmark-2.0.x-SNAPSHOT/Trends/index.html) |
 
 ## Scenario
 
