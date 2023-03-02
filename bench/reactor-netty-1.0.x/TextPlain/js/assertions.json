@@ -1,7 +1,7 @@
 {
   "simulation": "application.simulations.TextPlain",
-  "simulationId": "textplain-20230302074005508",
-  "start": 1677742806297,
+  "simulationId": "textplain-20230302143304313",
+  "start": 1677767585197,
   "description": "",
   "scenarios": ["Receive plain Text"],
   "assertions": [
