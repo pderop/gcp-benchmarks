@@ -3,7 +3,8 @@
 
 | Application  | TextPlain | Trends |
 | ---  | :---: | :---: |
-| gateway-rn-1.1.x | [**result**](bench/gateway-rn-1.1.x/TextPlain/index.html) | [**result**](bench/gateway-rn-1.1.x/Trends/index.html) |
+| gateway-rn-1.1.x | n/a | [**result**](bench/gateway-rn-1.1.x/Trends/index.html) |
+| gateway-rn-1.1.x-H1 | [**result**](bench/gateway-rn-1.1.x-H1/TextPlain/index.html) | n/a |
 
 ## Scenario
 
