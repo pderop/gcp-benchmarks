@@ -1,0 +1,91 @@
+name: benchmark-deploy-debug
+
+on:
+  workflow_call:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  SERVER_INSTANCE: ${{ vars.SERVER_INSTANCE }}
+  CLIENT_INSTANCE: ${{ vars.CLIENT_INSTANCE }}
+  BUCKET: ${{ vars.BUCKET }}
+  ZONE: ${{ vars.ZONE }}
+  MACHINE_TYPE: ${{ vars.MACHINE_TYPE }}
+  IMAGE_FAMILY: ${{ vars.IMAGE_FAMILY }}
+  IMAGE_PROJECT: ${{ vars.IMAGE_PROJECT }}
+
+jobs:
+  setup-debug:
+    name: Setup Debug VMs
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    # GCP authentication via credentials json
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+    # Setup gcloud CLI
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+
+    - name: Build and copy artifacts to server
+      shell: bash
+      run: |-
+        if [ -f pom.xml ]; then 
+          mvn --quiet -B package --file pom.xml;
+          JARS=$(find *target -name "*.jar");
+        elif [ -f build.gradle ]; then
+          ./gradlew build
+          JARS=$(find *build/libs -name "*.jar");
+        fi
+        for jarfile in $JARS; do
+          gsutil cp $jarfile gs://$BUCKET/apps/
+        done
+
+    # Create the server VM (it will move all jars from bucket/server into the VM)
+    - name: Create Server VM
+      run: |-
+        git checkout main
+        gcloud compute instances create $SERVER_INSTANCE \
+          --machine-type=$MACHINE_TYPE \
+          --scopes="userinfo-email,storage-rw" \
+          --zone=$ZONE \
+          --tags=benchmark-tag \
+          --network=default \
+          --image-family=$IMAGE_FAMILY \
+          --image-project=$IMAGE_PROJECT \
+          --metadata-from-file startup-script=vm/server/startup.sh \
+          --metadata BUCKET=$BUCKET,PROJECT_ID=$PROJECT_ID | \
+        sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
+        .github/scripts/wait-for-vm-started.sh $SERVER_INSTANCE $ZONE 300
+
+    # Create client VM
+    - name: Create Client VM
+      run: |-
+        tar zcf /tmp/gatling.tgz .
+        gsutil cp /tmp/gatling.tgz gs://$BUCKET/client/
+        INTERNAL_IP=`gcloud compute instances list --filter="name=$SERVER_INSTANCE" --format='value(networkInterfaces[0].networkIP)'`
+        gcloud compute instances create $CLIENT_INSTANCE \
+          --machine-type=$MACHINE_TYPE \
+          --scopes="userinfo-email,storage-rw" \
+          --zone=$ZONE \
+          --tags=benchmark-tag \
+          --network=default \
+          --image-family=$IMAGE_FAMILY \
+          --image-project=$IMAGE_PROJECT \
+          --metadata-from-file startup-script=vm/client/startup.sh \
+          --metadata BUCKET=$BUCKET,PROJECT_ID=$PROJECT_ID,INTERNAL_IP=$INTERNAL_IP | \
+        sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
+        .github/scripts/wait-for-vm-started.sh $CLIENT_INSTANCE $ZONE 300

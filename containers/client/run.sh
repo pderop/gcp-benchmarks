@@ -3,12 +3,14 @@
 set -v
 
 SERVER_HOST=$1
-SIMULATIONS=$2
-INCREMENT=$3
-STEPS=$4
-DURATION=$5
-APP=$6
-BENCHDIR=${7:-/opt/bench}
+SERVER_PORT=$2
+SIMULATIONS=$3
+INCREMENT=$4
+STEPS=$5
+DURATION=$6
+APP=$7
+PROTOCOL=$8
+BENCHDIR=${9:-/opt/bench}
 
 echo "Running simulations: ${SIMULATIONS} for application $APP"
 mkdir -p $BENCHDIR/results
@@ -21,7 +23,7 @@ tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
 
 # Server is expected to have started the app, but check it's available
-curl http://$SERVER_HOST/text \
+curl http://$SERVER_HOST:$SERVER_PORT/text \
       --silent \
       --fail \
       --location \
@@ -32,10 +34,10 @@ curl http://$SERVER_HOST/text \
 
 # Now, start gatling for this app
 for simulation in $(echo ${SIMULATIONS} | tr ";" "\n"); do
-  export JAVA_OPTS="-DbaseUrl=http://${SERVER_HOST} -Dincrement=${INCREMENT} -Dsteps=${STEPS} -Dduration=${DURATION}"
-  mean=$($BENCHDIR/gatling/bin/gatling.sh --run-description "Benchmark for ${APP}:${simulation}" -s ${simulation} -bm --run-mode local | grep "mean requests/sec"|awk  '{print $4}')
+  JOPTS="-DHOST=${SERVER_HOST} -DPORT=${SERVER_PORT} -DINCREMENT=${INCREMENT} -DSTEPS=${STEPS} -DDURATION=${DURATION} -DPROTOCOL=${PROTOCOL}"
 
-  name="$APP-$simulation"
+  name="$APP-$PROTOCOL-$simulation"
+  mean=$(java ${JOPTS} -jar gatling-1.0-SNAPSHOT-all.jar "$name" $simulation | grep "mean requests/sec"|awk  '{print $4}')
   unit="mean requests/sec"
   value="$mean"
 
@@ -47,15 +49,21 @@ for simulation in $(echo ${SIMULATIONS} | tr ";" "\n"); do
   cp $tmp $BENCHDIR/results/gh-benchmark.json
 
   simulation_lower=$(echo "$simulation" | tr '[:upper:]' '[:lower:]')
-  rm -f $BENCHDIR/gatling/results/$simulation_lower*/simulation.log
-  mkdir -p $BENCHDIR/results/bench/$APP/$simulation
-  mv $BENCHDIR/gatling/results/$simulation_lower*/* $BENCHDIR/results/bench/$APP/$simulation/
+  rm -f test-reports/$simulation_lower*/simulation.log
+  mkdir -p $BENCHDIR/results/bench/$APP-$PROTOCOL/$simulation
+  find test-reports
+  mv test-reports/$simulation_lower*/* $BENCHDIR/results/bench/$APP-$PROTOCOL/$simulation/
 done
 
 cd $BENCHDIR/results/
 tar zcf bench.tgz bench
+cat gh-benchmark.json
 
 # all done, copy results into bucket
 gsutil cp $BENCHDIR/results/bench.tgz gs://${BUCKET}/results/
 gsutil cp $BENCHDIR/results/gh-benchmark.json gs://${BUCKET}/results/
+
+# ask the server to exit
+curl -s http://$SERVER_HOST:$SERVER_PORT/exit
+exit 0
 

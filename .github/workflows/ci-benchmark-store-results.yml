@@ -1,0 +1,38 @@
+name: benchmark-store-results
+
+on:
+  workflow_call:
+
+jobs:
+  store-results-in-gh-pages:
+    name: Store results in gh-pages
+    runs-on: ubuntu-latest
+    env:
+      CI_COMMIT_MESSAGE: Benchmarks
+      CI_COMMIT_AUTHOR: ${{ github.event.repository.name }} Benchmarks
+      CI_COMMIT_EMAIL: $GITHUB_TRIGGERING_ACTOR@users.noreply.github.com
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: 'gh-pages'
+
+      - name: Download results
+        uses: actions/download-artifact@v3
+        with:
+          name: results
+          path: tmp
+
+      - name: Commit results
+        id: commit-results
+        run: |-
+          ls tmp
+          \cp -fR tmp/* .
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "${{ env.CI_COMMIT_EMAIL }}"
+          git add bench
+          git add README.md
+          git commit --allow-empty -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push origin gh-pages:gh-pages
