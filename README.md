@@ -3,7 +3,7 @@
 
 | Application  | TextPlain | Trends |
 | ---  | :---: | :---: |
-| reactor-netty-1.0.x | [**result**](bench/reactor-netty-1.0.x/TextPlain/index.html) | [**result**](bench/reactor-netty-1.0.x/Trends/index.html) |
+| gateway-rn-1.1.x | [**result**](bench/gateway-rn-1.1.x/TextPlain/index.html) | [**result**](bench/gateway-rn-1.1.x/Trends/index.html) |
 
 ## Scenario
 
