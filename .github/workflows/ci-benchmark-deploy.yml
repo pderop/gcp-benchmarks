@@ -77,7 +77,7 @@ jobs:
     name: Initialize benchmark
     runs-on: ubuntu-latest
     permissions:
-      content: read
+      contents: read
     outputs:
       changed: ${{ steps.check_updated.outputs.CHANGED }}
       commits: ${{ steps.check_updated.outputs.COMMITS }}
@@ -107,7 +107,7 @@ jobs:
     if: needs.init-benchmark.outputs.changed == 'true' || github.event.inputs.force-bench == 'true'
     runs-on: ubuntu-latest
     permissions:
-      content: read
+      contents: read
     env:
       JOB_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       GH_TOKEN: ${{ github.token }}
