@@ -68,7 +68,7 @@ env:
   ALERT_THRESHOLD: ${{ inputs.alert-threshold || vars.ALERT_THRESHOLD }}
   APP: ${{ inputs.app }}
   PROTOCOL: ${{ inputs.protocol }}
-  APP_PROTOCOL: ${{ inputs.app }}-${{ inputs.protocol }}
+  APP_NAME: ${{ inputs.app }}-${{ inputs.protocol }}
   DEPENDENCIES: ${{ inputs.dependencies }}
 
 jobs:
@@ -99,7 +99,7 @@ jobs:
         run: |-
           . ${SCRIPTS_DIR}/libs.sh
           git checkout gh-pages
-          check_for_new_commits "$DEPENDENCIES" bench/$APP_PROTOCOL/Trends/.history $GITHUB_OUTPUT
+          check_for_new_commits "$DEPENDENCIES" bench/$APP_NAME/Trends/.history $GITHUB_OUTPUT
 
   run-benchmark:
     name: Deploy benchmark
@@ -197,10 +197,10 @@ jobs:
       - name: Generate trends report
         uses: benchmark-action/github-action-benchmark@v1.15.0
         with:
-          name: Trends for ${{ env.APP_PROTOCOL }}
+          name: Trends for ${{ env.APP_NAME }}
           tool: 'customBiggerIsBetter'
           output-file-path: ./gh-benchmark.json
-          benchmark-data-dir-path: bench/${{ env.APP_PROTOCOL }}/Trends
+          benchmark-data-dir-path: bench/${{ env.APP_NAME }}/Trends
           max-items-in-chart: 100
           auto-push: false
           alert-threshold: ${{ env.ALERT_THRESHOLD }}
@@ -217,9 +217,9 @@ jobs:
           tar zxf bench.tgz
           rm -f bench.tgz
           build-results-readme bench > README.md
-          update_benchmark_history bench/$APP_PROTOCOL/Trends/.history "${{ needs.init-benchmark.outputs.commits }}" 
-          transform_benchmark_json_data bench/$APP_PROTOCOL/Trends/data.js "Trends for $APP_PROTOCOL" $JOB_URL $GITHUB_RUN_ID "${{ needs.init-benchmark.outputs.commits_diff }}" 
-          cp -f ${SCRIPTS_DIR}/benchmark-index-template.html bench/$APP_PROTOCOL/Trends/index.html
+          update_benchmark_history bench/$APP_NAME/Trends/.history "${{ needs.init-benchmark.outputs.commits }}" 
+          transform_benchmark_json_data bench/$APP_NAME/Trends/data.js "Trends for $APP_NAME" $JOB_URL $GITHUB_RUN_ID "${{ needs.init-benchmark.outputs.commits_diff }}" 
+          cp -f ${SCRIPTS_DIR}/benchmark-index-template.html bench/$APP_NAME/Trends/index.html
 
       - name: Upload results
         uses: actions/upload-artifact@v3
