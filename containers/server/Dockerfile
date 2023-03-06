@@ -1,7 +1,5 @@
 FROM eclipse-temurin:19-alpine
 
-RUN apk add --no-cache openjdk19 unzip
-
 # Install client application
 WORKDIR /opt/bench/
 
