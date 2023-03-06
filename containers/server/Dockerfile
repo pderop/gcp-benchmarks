@@ -1,7 +1,6 @@
 FROM google/cloud-sdk
 
-RUN apt-get update && \
-    apt-get install -y openjdk-19-jdk \
+RUN apt-get update && apt-get install -y openjdk-19-jdk
 
 # Install client application
 WORKDIR /opt/bench/
