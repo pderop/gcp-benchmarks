@@ -1,6 +1,6 @@
-FROM google/cloud-sdk
+FROM eclipse-temurin:19-alpine
 
-RUN apt-get update && apt-get install -y openjdk-19-jdk
+RUN apk add --no-cache openjdk19 unzip
 
 # Install client application
 WORKDIR /opt/bench/
