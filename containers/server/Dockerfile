@@ -1,6 +1,6 @@
-FROM eclipse-temurin:19-alpine
+FROM google/cloud-sdk:alpine
 
-RUN apk add --no-cache unzip
+RUN apk add --no-cache openjdk17 unzip
 
 # Install client application
 WORKDIR /opt/bench/
