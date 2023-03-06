@@ -1,6 +1,6 @@
 FROM google/cloud-sdk:alpine
 
-RUN apk add --no-cache openjdk17 unzip
+RUN apk add --no-cache openjdk19 unzip
 
 # Install client application
 WORKDIR /opt/bench/
