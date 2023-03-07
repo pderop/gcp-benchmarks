@@ -1,4 +1,12 @@
-FROM eclipse-temurin:19
+# Stage 1: Install OpenJDK 19
+FROM eclipse-temurin:19-alpine As openjdk
+
+FROM google/cloud-sdk:alpine
+
+# Copy OpenJDK 19 files from the previous stage
+COPY --from=openjdk /opt/java/openjdk /opt/java/openjdk
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="$PATH:$JAVA_HOME/bin"
 
 # Install client application
 WORKDIR /opt/bench/
