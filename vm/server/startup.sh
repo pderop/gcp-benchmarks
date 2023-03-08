@@ -8,7 +8,7 @@ BUCKET=$(curl -s "http://metadata.google.internal/computeMetadata/v1/instance/at
 echo "Project ID: ${PROJECTID} Bucket: ${BUCKET} Application"
 
 sudo apt-get update
-sudo apt-get install -yq openjdk-17-jdk
-sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+sudo apt-get install -yq openjdk-19-jdk
+sudo update-alternatives --set java /usr/lib/jvm/java-19-openjdk-amd64/bin/java
 
 gsutil cp gs://${BUCKET}/apps/*.jar /tmp/

@@ -9,8 +9,8 @@ INTERNAL_IP=$(curl -s "http://metadata.google.internal/computeMetadata/v1/instan
 echo "Project ID: ${PROJECTID} Bucket: ${BUCKET}"
 
 sudo apt-get update
-sudo apt-get install -yq openjdk-17-jdk
-sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/jre/bin/java
+sudo apt-get install -yq openjdk-19-jdk
+sudo update-alternatives --set java /usr/lib/jvm/java-19-openjdk-amd64/jre/bin/java
 
 gsutil cp "gs://${BUCKET}/client/*" /tmp/
 cd /tmp
