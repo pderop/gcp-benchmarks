@@ -13,6 +13,7 @@ PROTOCOL=$8
 BENCHDIR=${9:-/opt/bench}
 
 echo "Running simulations: ${SIMULATIONS} for application $APP"
+java -version
 mkdir -p $BENCHDIR/results
 
 # initialize our custom json output (we will fill it for each simulation results, see below)

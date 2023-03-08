@@ -10,6 +10,7 @@ PROTOCOL=$4
 echo "Starting server for Project ID: ${PROJECT_ID} Bucket: ${BUCKET} App: ${APP} Protocol: ${PROTOCOL}"
 
 gsutil cp "gs://${BUCKET}/apps/${APP}.jar" .
+java -version
 java -DPROTOCOL=$PROTOCOL -jar ${APP}.jar
 
 echo "Server exit ($?)"
