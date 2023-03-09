@@ -147,6 +147,8 @@ jobs:
           check_for_new_commits "$DEPENDENCIES" bench/$APP_NAME/Trends/.history $GITHUB_OUTPUT
 
   run-benchmark:
+    concurrency:
+      group: benchmark-concurrency
     name: Deploy benchmark
     needs: init-benchmark
     if: needs.init-benchmark.outputs.changed == 'true' || github.event.inputs.force-bench == 'true'
@@ -326,7 +328,7 @@ jobs:
     name: Store results in gh-pages
     runs-on: ubuntu-latest
     concurrency:
-      group: store-results-in-gh-pages-concurrency
+      group: benchmark-concurrency
 
     needs: [init-benchmark, run-benchmark]
     if: needs.init-benchmark.outputs.changed == 'true' || github.event.inputs.force-bench == 'true'
