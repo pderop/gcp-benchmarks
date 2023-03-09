@@ -76,6 +76,7 @@ jobs:
       run: |-
         git checkout main
         gcloud compute instances create $FRONTEND_VM \
+          --preemptible \
           --machine-type=$MACHINE_TYPE \
           --scopes="userinfo-email,storage-rw" \
           --zone=$ZONE \
@@ -92,6 +93,7 @@ jobs:
       if: github.event.inputs.backend-vm != ''
       run: |-
         gcloud compute instances create $BACKEND_VM \
+          --preemptible \
           --machine-type=$MACHINE_TYPE \
           --scopes="userinfo-email,storage-rw" \
           --zone=$ZONE \
@@ -112,6 +114,7 @@ jobs:
         gsutil cp /tmp/gatling.tgz gs://$BUCKET/client/
         INTERNAL_IP=`gcloud compute instances list --filter="name=$FRONTEND_VM" --format='value(networkInterfaces[0].networkIP)'`
         gcloud compute instances create $CLIENT_VM \
+          --preemptible \
           --machine-type=$MACHINE_TYPE \
           --scopes="userinfo-email,storage-rw" \
           --zone=$ZONE \
