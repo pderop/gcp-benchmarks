@@ -325,6 +325,10 @@ jobs:
   store-results-in-gh-pages:
     name: Store results in gh-pages
     runs-on: ubuntu-latest
+    concurrency:
+      group: store-results-in-gh-pages-concurrency
+      max: 1
+
     needs: [init-benchmark, run-benchmark]
     if: needs.init-benchmark.outputs.changed == 'true' || github.event.inputs.force-bench == 'true'
     env:
