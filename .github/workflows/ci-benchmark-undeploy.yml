@@ -2,11 +2,22 @@ name: benchmark-undeploy
 
 on:
   workflow_call:
+    inputs:
+      frontend-vm:
+        type: string
+        description: 'The frontend vm to undeploy:'
+        default: ''
+        required: true
+      client-vm:
+        type: string
+        description: 'The client vm to undeploy:'
+        default: ''
+        required: true
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-  SERVER_INSTANCE: ${{ vars.SERVER_INSTANCE }}
-  CLIENT_INSTANCE: ${{ vars.CLIENT_INSTANCE }}
+  SERVER_VM: ${{ inputs.frontent-vm }}
+  CLIENT_VM: ${{ inputs.client-vm }}
   BUCKET: ${{ vars.BUCKET }}
   ZONE: ${{ vars.ZONE }}
   MACHINE_TYPE: ${{ vars.MACHINE_TYPE }}
@@ -42,7 +53,7 @@ jobs:
     - name: Remove GCP instances and resources
       if: always()
       run: |-
-        gcloud compute instances delete $CLIENT_INSTANCE --quiet --zone $ZONE | echo
-        gcloud compute instances delete $SERVER_INSTANCE --quiet --zone $ZONE | echo
+        gcloud compute instances delete $CLIENT_VM --quiet --zone $ZONE | echo
+        gcloud compute instances delete $SERVER_VM --quiet --zone $ZONE | echo
         gsutil rm -f gs://$BUCKET/apps/* | echo
         gsutil rm -f gs://$BUCKET/results/* | echo

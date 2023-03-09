@@ -8,12 +8,12 @@ on:
         description: 'The application to test:'
         default: ''
         required: true
-      client:
+      client-vm:
         type: string
         description: 'The client vm name:'
         default: ''
         required: true
-      frontend:
+      frontend-vm:
         type: string
         description: 'The frontend vm name:'
         default: ''
@@ -66,8 +66,8 @@ on:
 env:
   SCRIPTS_DIR: ./main-repo/.github/scripts
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-  FRONTEND_INSTANCE: ${{ inputs.frontend }}
-  CLIENT_INSTANCE: ${{ inputs.client }}
+  FRONTEND_VM: ${{ inputs.frontend-vm }}
+  CLIENT_VM: ${{ inputs.client-vm }}
   BUCKET: ${{ vars.BUCKET }}
   ZONE: ${{ vars.ZONE }}
   MACHINE_TYPE: ${{ vars.MACHINE_TYPE }}
@@ -163,13 +163,13 @@ jobs:
       # Create the server VM
       - name: Create Server
         run: |-
-          gcloud compute instances create-with-container $FRONTEND_INSTANCE \
+          gcloud compute instances create-with-container $FRONTEND_VM \
             --machine-type=$MACHINE_TYPE \
             --scopes="userinfo-email,storage-rw" \
             --zone=$ZONE \
             --tags=benchmark-tag \
             --network=default \
-            --container-image=gcr.io/$PROJECT_ID/$FRONTEND_INSTANCE-image:latest \
+            --container-image=gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest \
             --container-restart-policy=never \
             --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$APP,PROTOCOL=$PROTOCOL | \
           sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
@@ -178,14 +178,14 @@ jobs:
       # Create client VM which will start benchmark
       - name: Create Client
         run: |-
-          INTERNAL_IP=`gcloud compute instances list --filter="name=$FRONTEND_INSTANCE" --format='value(networkInterfaces[0].networkIP)'`
-          gcloud compute instances create-with-container $CLIENT_INSTANCE \
+          INTERNAL_IP=`gcloud compute instances list --filter="name=$FRONTEND_VM" --format='value(networkInterfaces[0].networkIP)'`
+          gcloud compute instances create-with-container $CLIENT_VM \
             --machine-type=$MACHINE_TYPE \
             --scopes="userinfo-email,storage-rw" \
             --zone=$ZONE \
             --tags=benchmark-tag \
             --network=default \
-            --container-image=gcr.io/$PROJECT_ID/$CLIENT_INSTANCE-image:latest \
+            --container-image=gcr.io/$PROJECT_ID/$CLIENT_VM-image:latest \
             --container-restart-policy=never \
             --container-env="BUCKET=$BUCKET,SERVER_HOST=${INTERNAL_IP},SERVER_PORT=8080,SIMULATIONS=$SIMULATIONS,INCREMENT=$INCREMENT,STEPS=$STEPS,DURATION=$DURATION,APP=$APP,PROTOCOL=$PROTOCOL" | \
           sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
@@ -246,17 +246,17 @@ jobs:
         run: |-
           set +e
           echo "client instance container logs:"
-          container_id=$(gcloud compute ssh $CLIENT_INSTANCE --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
-            tr '\r' '\n' | grep $CLIENT_INSTANCE | cut -d ' ' -f 1)
-          gcloud compute ssh $CLIENT_INSTANCE --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
+          container_id=$(gcloud compute ssh $CLIENT_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
+            tr '\r' '\n' | grep $CLIENT_VM | cut -d ' ' -f 1)
+          gcloud compute ssh $CLIENT_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
           echo "Deleting client instance"
-          gcloud compute instances delete $CLIENT_INSTANCE --quiet --zone $ZONE | echo
+          gcloud compute instances delete $CLIENT_VM --quiet --zone $ZONE | echo
           echo "server instance container logs:"
-          container_id=$(gcloud compute ssh $FRONTEND_INSTANCE --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
-            tr '\r' '\n' | grep $FRONTEND_INSTANCE | cut -d ' ' -f 1)
-          gcloud compute ssh $FRONTEND_INSTANCE --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
+          container_id=$(gcloud compute ssh $FRONTEND_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
+            tr '\r' '\n' | grep $FRONTEND_VM | cut -d ' ' -f 1)
+          gcloud compute ssh $FRONTEND_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
           echo "Deleting server instance"
-          gcloud compute instances delete $FRONTEND_INSTANCE --quiet --zone $ZONE | echo
+          gcloud compute instances delete $FRONTEND_VM --quiet --zone $ZONE | echo
           echo "Deleting files from bucket"
           gsutil rm -f gs://$BUCKET/apps/* | echo
           gsutil rm -f gs://$BUCKET/results/* | echo

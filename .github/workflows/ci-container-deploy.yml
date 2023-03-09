@@ -3,21 +3,21 @@ name: containers-deploy
 on:
   workflow_call:
     inputs:
-      frontend:
+      frontend-vm:
         type: string
-        description: 'The frontend image name:'
+        description: 'The frontend vm to build an image for:'
         default: ''
         required: true
-      client:
+      client-vm:
         type: string
-        description: 'The client image name:'
+        description: 'The client vm to build an image for:'
         default: ''
         required: true
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-  CLIENT_INSTANCE: ${{ intputs.client }}
-  FRONTEND_INSTANCE: ${{ intputs.frontend }}
+  CLIENT_VM: ${{ intputs.client }}
+  FRONTEND_VM: ${{ intputs.frontend }}
   GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 
 jobs:
@@ -55,13 +55,13 @@ jobs:
     # Purge old containers
     - name: Purge old images
       run: |-
-        gcloud container images list-tags gcr.io/$PROJECT_ID/$FRONTEND_INSTANCE-image \
+        gcloud container images list-tags gcr.io/$PROJECT_ID/$FRONTEND_VM-image \
           --format="get(digest)" | \
-          awk -v image_path="gcr.io/$PROJECT_ID/$FRONTEND_INSTANCE-image@" '{print image_path $1}' | \
+          awk -v image_path="gcr.io/$PROJECT_ID/$FRONTEND_VM-image@" '{print image_path $1}' | \
           xargs -r gcloud container images delete --force-delete-tags --quiet
-        gcloud container images list-tags gcr.io/$PROJECT_ID/$CLIENT_INSTANCE-image \
+        gcloud container images list-tags gcr.io/$PROJECT_ID/$CLIENT_VM-image \
           --format="get(digest)" | \
-          awk -v image_path="gcr.io/$PROJECT_ID/$CLIENT_INSTANCE-image@" '{print image_path $1}' | \
+          awk -v image_path="gcr.io/$PROJECT_ID/$CLIENT_VM-image@" '{print image_path $1}' | \
           xargs -r gcloud container images delete --force-delete-tags --quiet
 
     # Build the Docker images
@@ -72,11 +72,11 @@ jobs:
         cp gatling/build/libs/gatling-1.0-SNAPSHOT-all.jar /tmp
         git checkout main
         cp /tmp/gatling-1.0-SNAPSHOT-all.jar containers/client/
-        docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_INSTANCE-image:latest" containers/server
-        docker build --tag "gcr.io/$PROJECT_ID/$CLIENT_INSTANCE-image:latest" containers/client
+        docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest" containers/server
+        docker build --tag "gcr.io/$PROJECT_ID/$CLIENT_VM-image:latest" containers/client
 
     # Push the Docker image to Google Container Registry
     - name: Push containers to GCR
       run: |-
-        docker push "gcr.io/$PROJECT_ID/$FRONTEND_INSTANCE-image:latest"
-        docker push "gcr.io/$PROJECT_ID/$CLIENT_INSTANCE-image:latest"
+        docker push "gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest"
+        docker push "gcr.io/$PROJECT_ID/$CLIENT_VM-image:latest"
