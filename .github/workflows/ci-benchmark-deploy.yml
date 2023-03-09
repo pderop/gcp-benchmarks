@@ -181,6 +181,7 @@ jobs:
       - name: Create frontend/backend servers
         run: |-
           if [ -n $BACKEND_APP ]; then
+            echo "Creating backend vm ..."
             gcloud compute instances create-with-container $BACKEND_VM \
               --machine-type=$MACHINE_TYPE \
               --scopes="userinfo-email,storage-rw" \
@@ -193,6 +194,7 @@ jobs:
               sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
               INTERNAL_IP=`gcloud compute instances list --filter="name=$BACKEND_VM" --format='value(networkInterfaces[0].networkIP)'`
           fi
+          echo "Creating frontend vm ..."
           gcloud compute instances create-with-container $FRONTEND_VM \
             --machine-type=$MACHINE_TYPE \
             --scopes="userinfo-email,storage-rw" \
