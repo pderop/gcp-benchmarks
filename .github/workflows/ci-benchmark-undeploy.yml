@@ -8,6 +8,11 @@ on:
         description: 'The frontend vm to undeploy:'
         default: ''
         required: true
+      backend-vm:
+        type: string
+        description: 'The backend vm to undeploy:'
+        default: ''
+        required: false
       client-vm:
         type: string
         description: 'The client vm to undeploy:'
@@ -16,7 +21,8 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-  SERVER_VM: ${{ inputs.frontent-vm }}
+  FRONTEND_VM: ${{ inputs.frontent-vm }}
+  BACKEND_VM: ${{ inputs.backent-vm }}
   CLIENT_VM: ${{ inputs.client-vm }}
   BUCKET: ${{ vars.BUCKET }}
   ZONE: ${{ vars.ZONE }}
@@ -54,6 +60,9 @@ jobs:
       if: always()
       run: |-
         gcloud compute instances delete $CLIENT_VM --quiet --zone $ZONE | echo
-        gcloud compute instances delete $SERVER_VM --quiet --zone $ZONE | echo
+        gcloud compute instances delete $FRONTEND_VM --quiet --zone $ZONE | echo
+        if [ -n $BACKEND_VM ]; then
+          gcloud compute instances delete $BACKEND_VM --quiet --zone $ZONE | echo
+        fi
         gsutil rm -f gs://$BUCKET/apps/* | echo
         gsutil rm -f gs://$BUCKET/results/* | echo
