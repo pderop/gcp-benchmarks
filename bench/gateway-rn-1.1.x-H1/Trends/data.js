@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1678271560333,
+  "lastUpdate": 1678370748315,
   "repoUrl": "https://github.com/pderop/gcp-benchmarks",
   "entries": {
     "Trends for gateway-rn-1.1.x-H1": [
@@ -188,6 +188,33 @@ window.BENCHMARK_DATA = {
           {
             "name": "gateway-rn-1.1.x-H1-TextPlain",
             "value": 20209.683,
+            "unit": "mean requests/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Pierre De Rop",
+            "username": "pderop",
+            "email": "pderop@vmware.com"
+          },
+          "committer": {
+            "name": "Pierre De Rop",
+            "username": "pderop",
+            "email": "pderop@vmware.com"
+          },
+          "id": "4375208138",
+          "message": "New commits since last benchmark:\n\n\thttps://github.com/reactor/reactor-core/compare/dca7de2483977d9cfbd6086258fdfb027642f86d..c803d2b237a7b855c6bce93a43688585a24ba75a",
+          "timestamp": "2023-03-09T14:00:18Z",
+          "url": "https://github.com/pderop/gcp-benchmarks/actions/runs/4375208138"
+        },
+        "date": 1678370747663,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "gateway-rn-1.1.x-H1-TextPlain",
+            "value": 18874.533,
             "unit": "mean requests/sec"
           }
         ]
