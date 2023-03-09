@@ -70,9 +70,9 @@ jobs:
         git checkout ${GITHUB_REF##*/}
         if [ -n $GATLING_IMAGE ]; then
           ./gradlew gatling:build
-          cp gatling/build/libs/gatling-1.0-SNAPSHOT-all.jar /tmp
+          cp gatling/build/libs/gatling*-all.jar /tmp
           git checkout main
-          cp /tmp/gatling-1.0-SNAPSHOT-all.jar containers/gatling/
+          cp /tmp/gatling-*-all.jar containers/gatling/
           docker build --tag "gcr.io/$PROJECT_ID/$GATLING_IMAGE:latest" containers/gatling
         fi
         git checkout main
