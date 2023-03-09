@@ -12,7 +12,7 @@ on:
         type: string
         description: 'The name of the gatling image to build:'
         default: ''
-        required: true
+        required: false
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
@@ -68,12 +68,15 @@ jobs:
     - name: Build containers
       run: |-
         git checkout ${GITHUB_REF##*/}
-        ./gradlew gatling:build
-        cp gatling/build/libs/gatling-1.0-SNAPSHOT-all.jar /tmp
+        if [ -n $GATLING_IMAGE ]; then
+          ./gradlew gatling:build
+          cp gatling/build/libs/gatling-1.0-SNAPSHOT-all.jar /tmp
+          git checkout main
+          cp /tmp/gatling-1.0-SNAPSHOT-all.jar containers/gatling/
+          docker build --tag "gcr.io/$PROJECT_ID/$GATLING_IMAGE:latest" containers/gatling
+        fi
         git checkout main
-        cp /tmp/gatling-1.0-SNAPSHOT-all.jar containers/client/
         docker build --tag "gcr.io/$PROJECT_ID/$SERVER_IMAGE:latest" containers/server
-        docker build --tag "gcr.io/$PROJECT_ID/$GATLING_IMAGE:latest" containers/client
 
     # Push the Docker image to Google Container Registry
     - name: Push containers to GCR
