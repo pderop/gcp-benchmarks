@@ -172,10 +172,14 @@ jobs:
           if [ -f pom.xml ]; then mvn --quiet -B package --file pom.xml; fi
           if [ -f build.gradle ]; then ./gradlew build; fi
 
-      - name: Copy application to server bucket
+      - name: Copy applications to server bucket
         run: |-
           jarfile=$(find . -name "$FRONTEND_APP.jar") 
           gsutil cp $jarfile gs://$BUCKET/apps/;
+          if [ -n $BACKEND_APP ]; then
+            jarfile=$(find . -name "$BACKEND_APP.jar") 
+            gsutil cp $jarfile gs://$BUCKET/apps/;
+          fi
 
       # Create the server VM
       - name: Create frontend/backend servers
