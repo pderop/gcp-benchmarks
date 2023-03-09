@@ -280,18 +280,26 @@ jobs:
         if: always()
         run: |-
           set +e
-          echo "client instance container logs:"
+          echo "Client logs:"
           container_id=$(gcloud compute ssh $CLIENT_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
             tr '\r' '\n' | grep $CLIENT_VM | cut -d ' ' -f 1)
           gcloud compute ssh $CLIENT_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
-          echo "Deleting client instance"
+          echo "Deleting client"
           gcloud compute instances delete $CLIENT_VM --quiet --zone $ZONE | echo
-          echo "server instance container logs:"
+          echo "Frontend logs:"
           container_id=$(gcloud compute ssh $FRONTEND_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
             tr '\r' '\n' | grep $FRONTEND_VM | cut -d ' ' -f 1)
           gcloud compute ssh $FRONTEND_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
-          echo "Deleting server instance"
+          echo "Deleting frontend vm"
           gcloud compute instances delete $FRONTEND_VM --quiet --zone $ZONE | echo
+          if [ -n $BACKEND_APP ]; then
+            echo "Backend logs:"
+            container_id=$(gcloud compute ssh $BACKEND_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
+              tr '\r' '\n' | grep $BACKEND_VM | cut -d ' ' -f 1)
+            gcloud compute ssh $BACKEND_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
+            echo "Deleting backend vm"
+            gcloud compute instances delete $BACKEND_VM --quiet --zone $ZONE | echo
+          fi
           echo "Deleting files from bucket"
           gsutil rm -f gs://$BUCKET/apps/* | echo
           gsutil rm -f gs://$BUCKET/results/* | echo
