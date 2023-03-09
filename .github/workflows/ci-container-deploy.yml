@@ -67,8 +67,8 @@ jobs:
     # Build the Docker images
     - name: Build containers
       run: |-
-        git checkout ${GITHUB_REF##*/}
         if [ -n $GATLING_IMAGE ]; then
+          git checkout ${GITHUB_REF##*/}
           ./gradlew gatling:build
           cp gatling/build/libs/gatling*-all.jar /tmp
           git checkout main
