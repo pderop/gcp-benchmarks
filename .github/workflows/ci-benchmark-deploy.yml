@@ -8,6 +8,16 @@ on:
         description: 'The application to test:'
         default: ''
         required: true
+      client:
+        type: string
+        description: 'The client vm name:'
+        default: ''
+        required: true
+      frontend:
+        type: string
+        description: 'The frontend vm name:'
+        default: ''
+        required: true
       protocol:
         type: string
         description: 'The protocol used (H1,H1S,H2,H2C):'
@@ -56,8 +66,8 @@ on:
 env:
   SCRIPTS_DIR: ./main-repo/.github/scripts
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-  SERVER_INSTANCE: ${{ vars.SERVER_INSTANCE }}
-  CLIENT_INSTANCE: ${{ vars.CLIENT_INSTANCE }}
+  FRONTEND_INSTANCE: ${{ inputs.frontend }}
+  CLIENT_INSTANCE: ${{ inputs.client }}
   BUCKET: ${{ vars.BUCKET }}
   ZONE: ${{ vars.ZONE }}
   MACHINE_TYPE: ${{ vars.MACHINE_TYPE }}
@@ -153,13 +163,13 @@ jobs:
       # Create the server VM
       - name: Create Server
         run: |-
-          gcloud compute instances create-with-container $SERVER_INSTANCE \
+          gcloud compute instances create-with-container $FRONTEND_INSTANCE \
             --machine-type=$MACHINE_TYPE \
             --scopes="userinfo-email,storage-rw" \
             --zone=$ZONE \
             --tags=benchmark-tag \
             --network=default \
-            --container-image=gcr.io/$PROJECT_ID/$SERVER_INSTANCE-image:latest \
+            --container-image=gcr.io/$PROJECT_ID/$FRONTEND_INSTANCE-image:latest \
             --container-restart-policy=never \
             --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$APP,PROTOCOL=$PROTOCOL | \
           sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
@@ -168,7 +178,7 @@ jobs:
       # Create client VM which will start benchmark
       - name: Create Client
         run: |-
-          INTERNAL_IP=`gcloud compute instances list --filter="name=$SERVER_INSTANCE" --format='value(networkInterfaces[0].networkIP)'`
+          INTERNAL_IP=`gcloud compute instances list --filter="name=$FRONTEND_INSTANCE" --format='value(networkInterfaces[0].networkIP)'`
           gcloud compute instances create-with-container $CLIENT_INSTANCE \
             --machine-type=$MACHINE_TYPE \
             --scopes="userinfo-email,storage-rw" \
@@ -242,11 +252,11 @@ jobs:
           echo "Deleting client instance"
           gcloud compute instances delete $CLIENT_INSTANCE --quiet --zone $ZONE | echo
           echo "server instance container logs:"
-          container_id=$(gcloud compute ssh $SERVER_INSTANCE --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
-            tr '\r' '\n' | grep $SERVER_INSTANCE | cut -d ' ' -f 1)
-          gcloud compute ssh $SERVER_INSTANCE --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
+          container_id=$(gcloud compute ssh $FRONTEND_INSTANCE --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
+            tr '\r' '\n' | grep $FRONTEND_INSTANCE | cut -d ' ' -f 1)
+          gcloud compute ssh $FRONTEND_INSTANCE --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
           echo "Deleting server instance"
-          gcloud compute instances delete $SERVER_INSTANCE --quiet --zone $ZONE | echo
+          gcloud compute instances delete $FRONTEND_INSTANCE --quiet --zone $ZONE | echo
           echo "Deleting files from bucket"
           gsutil rm -f gs://$BUCKET/apps/* | echo
           gsutil rm -f gs://$BUCKET/results/* | echo
