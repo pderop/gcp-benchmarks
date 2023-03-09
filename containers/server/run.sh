@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-[[ $# -ne 4 ]] && echo "Usage: $0 <projectid> <bucket name> <app name>" && exit 1
+[[ $# -ne 6 ]] && echo "Usage: $0 <projectid> <bucket name> <app name> <backend host> <backend port>" && exit 1
 
 PROJECT_ID=$1
 BUCKET=$2
