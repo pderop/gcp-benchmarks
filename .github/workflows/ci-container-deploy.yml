@@ -8,6 +8,11 @@ on:
         description: 'The frontend vm to build an image for:'
         default: ''
         required: true
+      backend-vm:
+        type: string
+        description: 'The backend vm to build an image for:'
+        default: ''
+        required: false
       client-vm:
         type: string
         description: 'The client vm to build an image for:'
@@ -18,6 +23,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
   CLIENT_VM: ${{ inputs.client-vm }}
   FRONTEND_VM: ${{ inputs.frontend-vm }}
+  BACKEND_VM: ${{ inputs.backend-vm }}
   GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 
 jobs:
@@ -59,6 +65,12 @@ jobs:
           --format="get(digest)" | \
           awk -v image_path="gcr.io/$PROJECT_ID/$FRONTEND_VM-image@" '{print image_path $1}' | \
           xargs -r gcloud container images delete --force-delete-tags --quiet
+        if [ -n $BACKEND_VM ]; then
+          gcloud container images list-tags gcr.io/$PROJECT_ID/$BACKEND_VM-image \
+            --format="get(digest)" | \
+            awk -v image_path="gcr.io/$PROJECT_ID/$BACKEND_VM-image@" '{print image_path $1}' | \
+            xargs -r gcloud container images delete --force-delete-tags --quiet
+        fi
         gcloud container images list-tags gcr.io/$PROJECT_ID/$CLIENT_VM-image \
           --format="get(digest)" | \
           awk -v image_path="gcr.io/$PROJECT_ID/$CLIENT_VM-image@" '{print image_path $1}' | \
@@ -73,10 +85,16 @@ jobs:
         git checkout main
         cp /tmp/gatling-1.0-SNAPSHOT-all.jar containers/client/
         docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest" containers/server
+        if [ -n $BACKEND_VM ]; then
+          docker build --tag "gcr.io/$PROJECT_ID/$BACKEND_VM-image:latest" containers/server
+        fi
         docker build --tag "gcr.io/$PROJECT_ID/$CLIENT_VM-image:latest" containers/client
 
     # Push the Docker image to Google Container Registry
     - name: Push containers to GCR
       run: |-
         docker push "gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest"
+        if [ -n $BACKEND_VM ]; then
+          docker push "gcr.io/$PROJECT_ID/$BACKEND_VM-image:latest"
+        fi
         docker push "gcr.io/$PROJECT_ID/$CLIENT_VM-image:latest"

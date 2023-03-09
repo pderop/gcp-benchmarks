@@ -192,7 +192,7 @@ jobs:
               --zone=$ZONE \
               --tags=benchmark-tag \
               --network=default \
-              --container-image=gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest \
+              --container-image=gcr.io/$PROJECT_ID/$BACKEND_VM-image:latest \
               --container-restart-policy=never \
               --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$BACKEND_APP,PROTOCOL=$PROTOCOL | \
               sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
