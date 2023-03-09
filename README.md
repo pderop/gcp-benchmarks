@@ -1,9 +1,9 @@
 # Servers shootout board
 ## Results
 
-| Application  | TextPlain | Trends |
-| ---  | :---: | :---: |
-| benchmark-rn-1.1.x-H1 | [**result**](bench/benchmark-rn-1.1.x-H1/TextPlain/index.html) | [**result**](bench/benchmark-rn-1.1.x-H1/Trends/index.html) |
+| Application  | Remote | TextPlain | Trends |
+| ---  | :---: | :---: | :---: |
+| benchmark-rn-1.1.x-H1 | [**result**](bench/benchmark-rn-1.1.x-H1/Remote/index.html) | [**result**](bench/benchmark-rn-1.1.x-H1/TextPlain/index.html) | [**result**](bench/benchmark-rn-1.1.x-H1/Trends/index.html) |
 
 ## Scenario
 
