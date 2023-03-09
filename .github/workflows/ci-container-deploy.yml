@@ -3,27 +3,21 @@ name: containers-deploy
 on:
   workflow_call:
     inputs:
-      frontend-vm:
+      server-image:
         type: string
-        description: 'The frontend vm to build an image for:'
+        description: 'The name of the server image to build:'
         default: ''
         required: true
-      backend-vm:
+      gatling-image:
         type: string
-        description: 'The backend vm to build an image for:'
-        default: ''
-        required: false
-      client-vm:
-        type: string
-        description: 'The client vm to build an image for:'
+        description: 'The name of the gatling image to build:'
         default: ''
         required: true
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-  CLIENT_VM: ${{ inputs.client-vm }}
-  FRONTEND_VM: ${{ inputs.frontend-vm }}
-  BACKEND_VM: ${{ inputs.backend-vm }}
+  GATLING_IMAGE: ${{ inputs.gatling-image }}
+  SERVER_IMAGE: ${{ inputs.server-image }}
   GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 
 jobs:
@@ -61,19 +55,13 @@ jobs:
     # Purge old containers
     - name: Purge old images
       run: |-
-        gcloud container images list-tags gcr.io/$PROJECT_ID/$FRONTEND_VM-image \
+        gcloud container images list-tags gcr.io/$PROJECT_ID/$SERVER_IMAGE \
           --format="get(digest)" | \
-          awk -v image_path="gcr.io/$PROJECT_ID/$FRONTEND_VM-image@" '{print image_path $1}' | \
+          awk -v image_path="gcr.io/$PROJECT_ID/$SERVER_IMAGE@" '{print image_path $1}' | \
           xargs -r gcloud container images delete --force-delete-tags --quiet
-        if [ -n $BACKEND_VM ]; then
-          gcloud container images list-tags gcr.io/$PROJECT_ID/$BACKEND_VM-image \
-            --format="get(digest)" | \
-            awk -v image_path="gcr.io/$PROJECT_ID/$BACKEND_VM-image@" '{print image_path $1}' | \
-            xargs -r gcloud container images delete --force-delete-tags --quiet
-        fi
-        gcloud container images list-tags gcr.io/$PROJECT_ID/$CLIENT_VM-image \
+        gcloud container images list-tags gcr.io/$PROJECT_ID/$GATLING_IMAGE \
           --format="get(digest)" | \
-          awk -v image_path="gcr.io/$PROJECT_ID/$CLIENT_VM-image@" '{print image_path $1}' | \
+          awk -v image_path="gcr.io/$PROJECT_ID/$GATLING_IMAGE@" '{print image_path $1}' | \
           xargs -r gcloud container images delete --force-delete-tags --quiet
 
     # Build the Docker images
@@ -84,17 +72,11 @@ jobs:
         cp gatling/build/libs/gatling-1.0-SNAPSHOT-all.jar /tmp
         git checkout main
         cp /tmp/gatling-1.0-SNAPSHOT-all.jar containers/client/
-        docker build --tag "gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest" containers/server
-        if [ -n $BACKEND_VM ]; then
-          docker build --tag "gcr.io/$PROJECT_ID/$BACKEND_VM-image:latest" containers/server
-        fi
-        docker build --tag "gcr.io/$PROJECT_ID/$CLIENT_VM-image:latest" containers/client
+        docker build --tag "gcr.io/$PROJECT_ID/$SERVER_IMAGE:latest" containers/server
+        docker build --tag "gcr.io/$PROJECT_ID/$GATLING_IMAGE:latest" containers/client
 
     # Push the Docker image to Google Container Registry
     - name: Push containers to GCR
       run: |-
-        docker push "gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest"
-        if [ -n $BACKEND_VM ]; then
-          docker push "gcr.io/$PROJECT_ID/$BACKEND_VM-image:latest"
-        fi
-        docker push "gcr.io/$PROJECT_ID/$CLIENT_VM-image:latest"
+        docker push "gcr.io/$PROJECT_ID/$SERVER_IMAGE:latest"
+        docker push "gcr.io/$PROJECT_ID/$GATLING_IMAGE:latest"
