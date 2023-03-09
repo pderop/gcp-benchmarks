@@ -76,7 +76,6 @@ jobs:
       run: |-
         git checkout main
         gcloud compute instances create $FRONTEND_VM \
-          --preemptible \
           --machine-type=$MACHINE_TYPE \
           --scopes="userinfo-email,storage-rw" \
           --zone=$ZONE \
@@ -90,7 +89,6 @@ jobs:
         .github/scripts/wait-for-vm-started.sh $FRONTEND_VM $ZONE 300
         if [ -n $BACKEND_VM ]; then
           gcloud compute instances create $BACKEND_VM \
-            --preemptible \
             --machine-type=$MACHINE_TYPE \
             --scopes="userinfo-email,storage-rw" \
             --zone=$ZONE \
@@ -113,7 +111,6 @@ jobs:
         git checkout main
         INTERNAL_IP=`gcloud compute instances list --filter="name=$FRONTEND_VM" --format='value(networkInterfaces[0].networkIP)'`
         gcloud compute instances create $CLIENT_VM \
-          --preemptible \
           --machine-type=$MACHINE_TYPE \
           --scopes="userinfo-email,storage-rw" \
           --zone=$ZONE \
