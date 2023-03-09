@@ -3,9 +3,14 @@ name: benchmark-deploy
 on:
   workflow_call:
     inputs:
-      app:
+      appname:
         type: string
-        description: 'The application to test:'
+        description: 'The name of the application:'
+        default: ''
+        required: true
+      frontent-app:
+        type: string
+        description: 'The application jar to deploy on the frontent vm:'
         default: ''
         required: true
       client-vm:
@@ -76,9 +81,9 @@ env:
   DURATION: ${{ inputs.duration || vars.DURATION }}
   STEPS: ${{ inputs.steps || vars.STEPS }}
   ALERT_THRESHOLD: ${{ inputs.alert-threshold || vars.ALERT_THRESHOLD }}
-  APP: ${{ inputs.app }}
   PROTOCOL: ${{ inputs.protocol }}
-  APP_NAME: ${{ inputs.app }}-${{ inputs.protocol }}
+  FRONTENT_APP: ${{ inputs.frontend-app }}
+  APP_NAME: ${{ inputs.appname }}
   DEPENDENCIES: ${{ inputs.dependencies }}
 
 jobs:
@@ -157,7 +162,7 @@ jobs:
 
       - name: Copy application to server bucket
         run: |-
-          jarfile=$(find . -name "$APP.jar") 
+          jarfile=$(find . -name "$FRONTENT_APP.jar") 
           gsutil cp $jarfile gs://$BUCKET/apps/;
 
       # Create the server VM
@@ -171,7 +176,7 @@ jobs:
             --network=default \
             --container-image=gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest \
             --container-restart-policy=never \
-            --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$APP,PROTOCOL=$PROTOCOL | \
+            --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$FRONTENT_APP,PROTOCOL=$PROTOCOL | \
           sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
             
 
@@ -187,7 +192,7 @@ jobs:
             --network=default \
             --container-image=gcr.io/$PROJECT_ID/$CLIENT_VM-image:latest \
             --container-restart-policy=never \
-            --container-env="BUCKET=$BUCKET,SERVER_HOST=${INTERNAL_IP},SERVER_PORT=8080,SIMULATIONS=$SIMULATIONS,INCREMENT=$INCREMENT,STEPS=$STEPS,DURATION=$DURATION,APP=$APP,PROTOCOL=$PROTOCOL" | \
+            --container-env="BUCKET=$BUCKET,SERVER_HOST=${INTERNAL_IP},SERVER_PORT=8080,SIMULATIONS=$SIMULATIONS,INCREMENT=$INCREMENT,STEPS=$STEPS,DURATION=$DURATION,APP_NAME=$APP_NAME,PROTOCOL=$PROTOCOL" | \
           sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
 
       # Wait for the results (one zip file for the application + gh-benchmark.json) (add 10 minutes for each test to let gatling be able to collect results)
