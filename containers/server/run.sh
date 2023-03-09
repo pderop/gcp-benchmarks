@@ -6,12 +6,14 @@ PROJECT_ID=$1
 BUCKET=$2
 APP=$3
 PROTOCOL=$4
+BACKEND_HOST=$5
+BACKEND_PORT=$6
 
-echo "Starting server for Project ID: ${PROJECT_ID} Bucket: ${BUCKET} App: ${APP} Protocol: ${PROTOCOL}"
+echo "Starting server for Project ID: ${PROJECT_ID} Bucket: ${BUCKET} App: ${APP} Protocol: ${PROTOCOL} BACKEND_HOST=${BACKEND_HOST} BACKEND_PORT=$BACKEND_PORT"
 
 gsutil cp "gs://${BUCKET}/apps/${APP}.jar" .
 java -version
-java -DPROTOCOL=$PROTOCOL -jar ${APP}.jar
+java -DPROTOCOL=$PROTOCOL -DBACKEND_HOST=$BACKEND_HOST -DBACKEND_PORT=$BACKEND_PORT -jar ${APP}.jar
 
 echo "Server exit ($?)"
 exit 0

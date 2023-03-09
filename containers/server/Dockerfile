@@ -18,7 +18,9 @@ ENV PROJECT_ID=default
 ENV BUCKET=default
 ENV APP=default
 ENV PROTOCOL=H1
+ENV BACKEND_HOST=127.0.0.1
+ENV BACKEND_PORT=8090
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "/opt/bench/run.sh ${PROJECT_ID} ${BUCKET} ${APP} ${PROTOCOL}"]
+CMD ["sh", "-c", "/opt/bench/run.sh ${PROJECT_ID} ${BUCKET} ${APP} ${PROTOCOL} ${BACKEND_HOST} ${BACKEND_PORT}"]

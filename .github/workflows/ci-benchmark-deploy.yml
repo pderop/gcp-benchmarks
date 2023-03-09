@@ -13,6 +13,11 @@ on:
         description: 'The application jar to deploy on the frontent vm:'
         default: ''
         required: true
+      backend-app:
+        type: string
+        description: 'The application jar to deploy on the backend vm:'
+        default: ''
+        required: false
       client-vm:
         type: string
         description: 'The client vm name:'
@@ -23,6 +28,11 @@ on:
         description: 'The frontend vm name:'
         default: ''
         required: true
+      backend-vm:
+        type: string
+        description: 'The backend vm name:'
+        default: ''
+        required: false
       protocol:
         type: string
         description: 'The protocol used (H1,H1S,H2,H2C):'
@@ -72,7 +82,12 @@ env:
   SCRIPTS_DIR: ./main-repo/.github/scripts
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
   FRONTEND_VM: ${{ inputs.frontend-vm }}
+  BACKEND_VM: ${{ inputs.backend-vm }}
   CLIENT_VM: ${{ inputs.client-vm }}
+  FRONTEND_APP: ${{ inputs.frontend-app }}
+  BACKEND_APP: ${{ inputs.backend-app }}
+  APP_NAME: ${{ inputs.appname }}
+  PROTOCOL: ${{ inputs.protocol }}
   BUCKET: ${{ vars.BUCKET }}
   ZONE: ${{ vars.ZONE }}
   MACHINE_TYPE: ${{ vars.MACHINE_TYPE }}
@@ -81,9 +96,6 @@ env:
   DURATION: ${{ inputs.duration || vars.DURATION }}
   STEPS: ${{ inputs.steps || vars.STEPS }}
   ALERT_THRESHOLD: ${{ inputs.alert-threshold || vars.ALERT_THRESHOLD }}
-  PROTOCOL: ${{ inputs.protocol }}
-  FRONTEND_APP: ${{ inputs.frontend-app }}
-  APP_NAME: ${{ inputs.appname }}
   DEPENDENCIES: ${{ inputs.dependencies }}
 
 jobs:
@@ -166,8 +178,21 @@ jobs:
           gsutil cp $jarfile gs://$BUCKET/apps/;
 
       # Create the server VM
-      - name: Create Server
+      - name: Create frontend/backend servers
         run: |-
+          if [ -n $BACKEND_APP ]; then
+            gcloud compute instances create-with-container $BACKEND_VM \
+              --machine-type=$MACHINE_TYPE \
+              --scopes="userinfo-email,storage-rw" \
+              --zone=$ZONE \
+              --tags=benchmark-tag \
+              --network=default \
+              --container-image=gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest \
+              --container-restart-policy=never \
+              --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$BACKEND_APP,PROTOCOL=$PROTOCOL | \
+              sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
+              INTERNAL_IP=`gcloud compute instances list --filter="name=$BACKEND_VM" --format='value(networkInterfaces[0].networkIP)'`
+          fi
           gcloud compute instances create-with-container $FRONTEND_VM \
             --machine-type=$MACHINE_TYPE \
             --scopes="userinfo-email,storage-rw" \
@@ -176,9 +201,8 @@ jobs:
             --network=default \
             --container-image=gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest \
             --container-restart-policy=never \
-            --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$FRONTEND_APP,PROTOCOL=$PROTOCOL | \
-          sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
-            
+            --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$FRONTEND_APP,PROTOCOL=$PROTOCOL,BACKEND_HOST=${INTERNAL_IP},BACKEND_PORT=8090 | \
+          sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'            
 
       # Create client VM which will start benchmark
       - name: Create Client
