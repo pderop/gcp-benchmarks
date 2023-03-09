@@ -21,7 +21,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-  FRONTEND_VM: ${{ inputs.frontent-vm }}
+  FRONTEND_VM: ${{ inputs.frontend-vm }}
   BACKEND_VM: ${{ inputs.backend-vm }}
   CLIENT_VM: ${{ inputs.client-vm }}
   BUCKET: ${{ vars.BUCKET }}
