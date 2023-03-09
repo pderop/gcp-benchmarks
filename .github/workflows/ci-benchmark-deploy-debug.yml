@@ -2,21 +2,22 @@ name: benchmark-deploy-debug
 
 on:
   workflow_call:
-    client-vm:
-      type: string
-      description: 'The client vm name:'
-      default: ''
-      required: true
-    frontend-vm:
-      type: string
-      description: 'The frontend vm name:'
-      default: ''
-      required: true
-    backend-vm:
-      type: string
-      description: 'The backend vm name:'
-      default: ''
-      required: false
+    inputs:
+      client-vm:
+        type: string
+        description: 'The client vm name:'
+        default: ''
+        required: true
+      frontend-vm:
+        type: string
+        description: 'The frontend vm name:'
+        default: ''
+        required: true
+      backend-vm:
+        type: string
+        description: 'The backend vm name:'
+        default: ''
+        required: false
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
