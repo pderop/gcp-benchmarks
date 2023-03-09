@@ -19,6 +19,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         ref: 'main'
+        fetch-depth: 0
 
     - name: Set up JDK
       uses: actions/setup-java@v3
@@ -55,8 +56,11 @@ jobs:
     # Build the Docker images
     - name: Build containers
       run: |-
-        ./gradlew build
-        cp build/libs/gatling-1.0-SNAPSHOT-all.jar containers/client
+        git checkout ${GITHUB_REF##*/}
+        ./gradlew gatling:build
+        cp gatling/build/libs/gatling-1.0-SNAPSHOT-all.jar /tmp
+        git checkout main
+        cp /tmp/gatling-1.0-SNAPSHOT-all.jar containers/client/
         docker build --tag "gcr.io/$PROJECT_ID/$SERVER_INSTANCE-image:latest" containers/server
         docker build --tag "gcr.io/$PROJECT_ID/$CLIENT_INSTANCE-image:latest" containers/client
 
