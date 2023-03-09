@@ -8,7 +8,7 @@ on:
         description: 'The name of the application:'
         default: ''
         required: true
-      frontent-app:
+      frontend-app:
         type: string
         description: 'The application jar to deploy on the frontent vm:'
         default: ''
@@ -82,7 +82,7 @@ env:
   STEPS: ${{ inputs.steps || vars.STEPS }}
   ALERT_THRESHOLD: ${{ inputs.alert-threshold || vars.ALERT_THRESHOLD }}
   PROTOCOL: ${{ inputs.protocol }}
-  FRONTENT_APP: ${{ inputs.frontend-app }}
+  FRONTEND_APP: ${{ inputs.frontend-app }}
   APP_NAME: ${{ inputs.appname }}
   DEPENDENCIES: ${{ inputs.dependencies }}
 
@@ -162,7 +162,7 @@ jobs:
 
       - name: Copy application to server bucket
         run: |-
-          jarfile=$(find . -name "$FRONTENT_APP.jar") 
+          jarfile=$(find . -name "$FRONTEND_APP.jar") 
           gsutil cp $jarfile gs://$BUCKET/apps/;
 
       # Create the server VM
@@ -176,7 +176,7 @@ jobs:
             --network=default \
             --container-image=gcr.io/$PROJECT_ID/$FRONTEND_VM-image:latest \
             --container-restart-policy=never \
-            --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$FRONTENT_APP,PROTOCOL=$PROTOCOL | \
+            --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$FRONTEND_APP,PROTOCOL=$PROTOCOL | \
           sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
             
 
