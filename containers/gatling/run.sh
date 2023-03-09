@@ -38,7 +38,7 @@ for simulation in $(echo ${SIMULATIONS} | tr ";" "\n"); do
   JOPTS="-DHOST=${SERVER_HOST} -DPORT=${SERVER_PORT} -DINCREMENT=${INCREMENT} -DSTEPS=${STEPS} -DDURATION=${DURATION} -DPROTOCOL=${PROTOCOL}"
 
   name="$APP_NAME-$simulation"
-  mean=$(java ${JOPTS} -jar gatling-1.0-SNAPSHOT-all.jar "$name" $simulation | grep "mean requests/sec"|awk  '{print $4}')
+  mean=$(java ${JOPTS} -jar gatling-*-all.jar "$name" $simulation | grep "mean requests/sec"|awk  '{print $4}')
   unit="mean requests/sec"
   value="$mean"
 

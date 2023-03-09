@@ -13,7 +13,7 @@ RUN apk add --no-cache unzip jq
 # Install client application
 WORKDIR /opt/bench/
 
-COPY gatling-1.0-SNAPSHOT-all.jar /opt/bench/
+COPY gatling-*-all.jar /opt/bench/
 COPY run.sh /opt/bench/
 
 # Replace with inline env variables when running the container
