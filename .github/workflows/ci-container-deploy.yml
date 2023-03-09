@@ -16,8 +16,8 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-  CLIENT_VM: ${{ intputs.client }}
-  FRONTEND_VM: ${{ intputs.frontend }}
+  CLIENT_VM: ${{ intputs.client-vm }}
+  FRONTEND_VM: ${{ intputs.frontend-vm }}
   GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 
 jobs:
