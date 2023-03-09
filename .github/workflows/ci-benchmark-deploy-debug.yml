@@ -2,11 +2,27 @@ name: benchmark-deploy-debug
 
 on:
   workflow_call:
+    client-vm:
+      type: string
+      description: 'The client vm name:'
+      default: ''
+      required: true
+    frontend-vm:
+      type: string
+      description: 'The frontend vm name:'
+      default: ''
+      required: true
+    backend-vm:
+      type: string
+      description: 'The backend vm name:'
+      default: ''
+      required: false
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-  SERVER_INSTANCE: ${{ vars.SERVER_INSTANCE }}
-  CLIENT_INSTANCE: ${{ vars.CLIENT_INSTANCE }}
+  FRONTEND_VM: ${{ inputs.frontend-vm }}
+  BACKEND_VM: ${{ inputs.backend-vm }}
+  CLIENT_VM: ${{ inputs.client-vm }}
   BUCKET: ${{ vars.BUCKET }}
   ZONE: ${{ vars.ZONE }}
   MACHINE_TYPE: ${{ vars.MACHINE_TYPE }}
@@ -55,10 +71,10 @@ jobs:
         done
 
     # Create the server VM (it will move all jars from bucket/server into the VM)
-    - name: Create Server VM
+    - name: Create frontend VM
       run: |-
         git checkout main
-        gcloud compute instances create $SERVER_INSTANCE \
+        gcloud compute instances create $FRONTEND_VM \
           --machine-type=$MACHINE_TYPE \
           --scopes="userinfo-email,storage-rw" \
           --zone=$ZONE \
@@ -69,15 +85,32 @@ jobs:
           --metadata-from-file startup-script=vm/server/startup.sh \
           --metadata BUCKET=$BUCKET,PROJECT_ID=$PROJECT_ID | \
         sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
-        .github/scripts/wait-for-vm-started.sh $SERVER_INSTANCE $ZONE 300
+        .github/scripts/wait-for-vm-started.sh $FRONTEND_VM $ZONE 300
+
+    - name: Create backend VM
+      if: github.event.inputs.backend-vm != ''
+      run: |-
+        gcloud compute instances create $BACKEND_VM \
+          --machine-type=$MACHINE_TYPE \
+          --scopes="userinfo-email,storage-rw" \
+          --zone=$ZONE \
+          --tags=benchmark-tag \
+          --network=default \
+          --image-family=$IMAGE_FAMILY \
+          --image-project=$IMAGE_PROJECT \
+          --metadata-from-file startup-script=vm/server/startup.sh \
+          --metadata BUCKET=$BUCKET,PROJECT_ID=$PROJECT_ID | \
+        sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
+        .github/scripts/wait-for-vm-started.sh $BACKEND_VM $ZONE 300
 
     # Create client VM
     - name: Create Client VM
       run: |-
+        git checkout ${GITHUB_REF##*/}
         tar zcf /tmp/gatling.tgz .
         gsutil cp /tmp/gatling.tgz gs://$BUCKET/client/
-        INTERNAL_IP=`gcloud compute instances list --filter="name=$SERVER_INSTANCE" --format='value(networkInterfaces[0].networkIP)'`
-        gcloud compute instances create $CLIENT_INSTANCE \
+        INTERNAL_IP=`gcloud compute instances list --filter="name=$FRONTEND_VM" --format='value(networkInterfaces[0].networkIP)'`
+        gcloud compute instances create $CLIENT_VM \
           --machine-type=$MACHINE_TYPE \
           --scopes="userinfo-email,storage-rw" \
           --zone=$ZONE \
@@ -88,4 +121,4 @@ jobs:
           --metadata-from-file startup-script=vm/client/startup.sh \
           --metadata BUCKET=$BUCKET,PROJECT_ID=$PROJECT_ID,INTERNAL_IP=$INTERNAL_IP | \
         sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
-        .github/scripts/wait-for-vm-started.sh $CLIENT_INSTANCE $ZONE 300
+        .github/scripts/wait-for-vm-started.sh $CLIENT_VM $ZONE 300
