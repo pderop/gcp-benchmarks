@@ -13,8 +13,7 @@ found_total=0
 max_wait=$(expr $2 \* 6)
 
 for ((i = 1; i <= $max_wait; i++)); do
-  found=$(gsutil ls $bucket 2>/dev/null | wc -l)
-  if [ "$found" -gt 0 ]; then
+  if gsutil -q stat $bucket; then
     exit 0
   fi
   sleep 3
