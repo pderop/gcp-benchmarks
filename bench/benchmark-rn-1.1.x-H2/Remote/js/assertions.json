@@ -1,0 +1,10 @@
+{
+  "simulation": "application.simulations.Remote",
+  "simulationId": "remote-20230310010920387",
+  "start": 1678410561041,
+  "description": "benchmark-rn-1.1.x-H2-Remote",
+  "scenarios": ["Receive from remote call"],
+  "assertions": [
+
+  ]
+}

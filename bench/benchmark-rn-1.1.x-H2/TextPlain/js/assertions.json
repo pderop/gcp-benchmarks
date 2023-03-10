@@ -1,0 +1,10 @@
+{
+  "simulation": "application.simulations.TextPlain",
+  "simulationId": "textplain-20230310010808836",
+  "start": 1678410489442,
+  "description": "benchmark-rn-1.1.x-H2-TextPlain",
+  "scenarios": ["Receive plain Text"],
+  "assertions": [
+
+  ]
+}
