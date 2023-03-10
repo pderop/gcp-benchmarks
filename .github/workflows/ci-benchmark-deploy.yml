@@ -184,6 +184,25 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
 
+      # Setup GCP's pubsub for synchronizations between concurrent jobs
+      - name: Set up GCP's pubsub
+        run: |-
+          set -e
+          TOPIC=benchmark-mutex-topic
+          SUBSCRIPTION=benchmark-mutex-subscription
+          gcloud pubsub topics create $TOPIC
+          gcloud pubsub subscriptions create $SUBSCRIPTION --topic=$TOPIC
+          # test mutex
+          echo "Acquiring mutex..."
+          MSG_ID=$(gcloud pubsub topics publish $TOPIC --message="acquire-mutex" | awk '{print $2}')
+          # Do some work while holding the mutex
+          echo "Mutex acquired, doing some work..."
+          sleep 10
+          # Release the mutex
+          echo "Releasing mutex..."
+          gcloud pubsub subscriptions ack $SUBSCRIPTION $MSG_ID
+          echo "Done"
+
       - name: Maven/Gradle Compile
         shell: bash
         run: |-
