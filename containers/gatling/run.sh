@@ -57,12 +57,10 @@ for simulation in $(echo ${SIMULATIONS} | tr ";" "\n"); do
 done
 
 cd $BENCHDIR/results/
-tar zcf bench.tgz bench
-cat gh-benchmark.json
+tar zcf bench-${APP_NAME}.tgz bench gh-benchmark.json
 
 # all done, copy results into bucket
-gsutil cp $BENCHDIR/results/bench.tgz gs://${BUCKET}/results/
-gsutil cp $BENCHDIR/results/gh-benchmark.json gs://${BUCKET}/results/
+gsutil cp $BENCHDIR/results/bench-${APP_NAME}.tgz gs://${BUCKET}/results/
 
 # ask the server to exit
 curl -s http://$SERVER_HOST:$SERVER_PORT/exit

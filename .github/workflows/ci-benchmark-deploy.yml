@@ -253,8 +253,9 @@ jobs:
           max_wait=$(expr $DURATION \* $nr_simulations)
           delta=$(expr 10 \* $nr_simulations)
           max_wait=$(expr $max_wait + $delta)
-          ${SCRIPTS_DIR}/wait-for-gs-bucket-file.sh gs://$BUCKET/results 2 $max_wait
-          gsutil cp gs://$BUCKET/results/gh-benchmark.json .
+          ${SCRIPTS_DIR}/wait-for-gs-bucket-file.sh gs://$BUCKET/results/bench-$APP_NAME.tgz $max_wait
+          gsutil cp gs://$BUCKET/results/bench-$APP_NAME.tgz .
+          tar zxvf bench-$APP_NAME.tgz gh-benchmark.json
 
       # Compute performance trends and send an alert in case of performance regression
       - name: Generate trends report
@@ -276,8 +277,7 @@ jobs:
         run: |-
           . ${SCRIPTS_DIR}/libs.sh
           git checkout gh-pages
-          gsutil cp gs://$BUCKET/results/bench.tgz .
-          tar zxf bench.tgz
+          tar zxvf bench-$APP_NAME.tgz
           rm -f bench.tgz
           build-results-readme bench > README.md
           update_benchmark_history bench/$APP_NAME/Trends/.history "${{ needs.init-benchmark.outputs.commits }}" 
@@ -287,7 +287,7 @@ jobs:
       - name: Upload results
         uses: actions/upload-artifact@v3
         with:
-          name: results
+          name: results-$APP_NAME
           path: |
             README.md
             bench
@@ -319,8 +319,11 @@ jobs:
             gcloud compute instances delete $BACKEND_VM --quiet --zone $ZONE | echo
           fi
           echo "Deleting files from bucket"
-          gsutil rm -f gs://$BUCKET/apps/* | echo
-          gsutil rm -f gs://$BUCKET/results/* | echo
+          gsutil rm -f gs://$BUCKET/apps/$FRONTEND_APP.jar | echo
+          if [ -n $BACKEND_APP ]; then
+            gsutil rm -f gs://$BUCKET/apps/$BACKEND_APP.jar | echo
+          fi
+          gsutil rm -f gs://$BUCKET/results/bench-$APP_NAME.tgz | echo
 
   store-results-in-gh-pages:
     name: Store results in gh-pages
@@ -342,7 +345,7 @@ jobs:
       - name: Download results
         uses: actions/download-artifact@v3
         with:
-          name: results
+          name: results-$APP_NAME
           path: tmp
 
       - name: Commit results
