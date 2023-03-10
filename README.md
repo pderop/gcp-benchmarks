@@ -5,6 +5,7 @@
 | ---  | :---: | :---: | :---: |
 | benchmark-rn-1.1.x-H1 | [**result**](bench/benchmark-rn-1.1.x-H1/Remote/index.html) | [**result**](bench/benchmark-rn-1.1.x-H1/TextPlain/index.html) | [**result**](bench/benchmark-rn-1.1.x-H1/Trends/index.html) |
 | benchmark-rn-1.1.x-H1S | [**result**](bench/benchmark-rn-1.1.x-H1S/Remote/index.html) | n/a | [**result**](bench/benchmark-rn-1.1.x-H1S/Trends/index.html) |
+| benchmark-rn-1.1.x-H2 | [**result**](bench/benchmark-rn-1.1.x-H2/Remote/index.html) | n/a | [**result**](bench/benchmark-rn-1.1.x-H2/Trends/index.html) |
 
 ## Scenario
 
