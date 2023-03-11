@@ -1,4 +1,4 @@
-name: benchmark-deploy
+name: benchmark-readme
 
 on:
   workflow_call:
