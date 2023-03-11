@@ -286,7 +286,6 @@ jobs:
           git checkout gh-pages
           tar zxvf bench-$APP_NAME.tgz
           rm -f bench.tgz
-          build-results-readme bench > README.md
           update_benchmark_history bench/$APP_NAME/Trends/.history "${{ needs.init-benchmark.outputs.commits }}" 
           transform_benchmark_json_data bench/$APP_NAME/Trends/data.js "Trends for $APP_NAME" $JOB_URL $GITHUB_RUN_ID "${{ needs.init-benchmark.outputs.commits_diff }}" 
           cp -f ${SCRIPTS_DIR}/benchmark-index-template.html bench/$APP_NAME/Trends/index.html
@@ -295,9 +294,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: results-${{ env.APP_NAME }}
-          path: |
-            README.md
-            bench
+          path: bench
           if-no-files-found: warn
           retention-days: 90
 
@@ -332,7 +329,7 @@ jobs:
           fi
           gsutil rm -f gs://$BUCKET/results/bench-$APP_NAME.tgz | echo
 
-  store-results-in-gh-pages:
+  commit-results:
     name: Store results in gh-pages
     runs-on: ubuntu-latest
     needs: [init-benchmark, run-benchmark]
@@ -363,6 +360,5 @@ jobs:
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
           git config --global user.email "${{ env.CI_COMMIT_EMAIL }}"
           git add bench
-          git add README.md
           git commit --allow-empty -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push origin gh-pages:gh-pages
