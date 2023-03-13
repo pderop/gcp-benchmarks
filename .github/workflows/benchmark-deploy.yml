@@ -72,7 +72,7 @@ jobs:
         reactor;reactor-core;main
 
   update-readme:
-    uses: .github/workflows/ci-benchmark-readme.yml@main
+    uses: ./.github/workflows/ci-benchmark-readme.yml@main
     needs: [ deploy-benchmark ]
     secrets: inherit
     permissions:
