@@ -46,7 +46,7 @@ jobs:
       max-parallel: 3
       matrix:
         protocol: [ H1, H1S, H2 ]
-    uses: .github/workflows/ci-benchmark-deploy.yml
+    uses: .github/workflows/ci-benchmark-deploy.yml@main
     secrets: inherit
     permissions:
       contents: write
@@ -72,7 +72,7 @@ jobs:
         reactor;reactor-core;main
 
   update-readme:
-    uses: .github/workflows/ci-benchmark-readme.yml
+    uses: .github/workflows/ci-benchmark-readme.yml@main
     needs: [ deploy-benchmark ]
     secrets: inherit
     permissions:

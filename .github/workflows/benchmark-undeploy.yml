@@ -5,7 +5,7 @@ on:
 
 jobs:
   benchmark-cleanup:
-    uses: .github/workflows/ci-benchmark-undeploy.yml
+    uses: .github/workflows/ci-benchmark-undeploy.yml@main
     secrets: inherit
     with:
       client-vm: benchmark-gatling
