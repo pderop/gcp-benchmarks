@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1678716580700,
+  "lastUpdate": 1678731472030,
   "repoUrl": "https://github.com/pderop/gcp-benchmarks",
   "entries": {
     "Trends for benchmark-rn-1.1.x-H1": [
@@ -139,6 +139,33 @@ window.BENCHMARK_DATA = {
           {
             "name": "benchmark-rn-1.1.x-H1-TextPlain",
             "value": 20951.667,
+            "unit": "mean requests/sec"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Pierre De Rop",
+            "username": "pderop",
+            "email": "pderop@vmware.com"
+          },
+          "committer": {
+            "name": "Pierre De Rop",
+            "username": "pderop",
+            "email": "pderop@vmware.com"
+          },
+          "id": "4408164144",
+          "message": "No new commit since last benchmark.",
+          "timestamp": "2023-03-13T18:11:25Z",
+          "url": "https://github.com/pderop/gcp-benchmarks/actions/runs/4408164144"
+        },
+        "date": 1678731471341,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "benchmark-rn-1.1.x-H1-TextPlain",
+            "value": 22113.6,
             "unit": "mean requests/sec"
           }
         ]
