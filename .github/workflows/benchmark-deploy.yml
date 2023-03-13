@@ -53,13 +53,7 @@ jobs:
     with:
       appname: benchmark-rn-1.1.x-${{ matrix.protocol }}
       protocol: ${{ matrix.protocol }}
-      client-vm: benchmark-gatling-${{ matrix.protocol }}
-      client-image: benchmark-gatling-image
-      frontend-vm: benchmark-frontend-${{ matrix.protocol }}
-      frontend-image: benchmark-server-image
       frontend-app: frontend-rn-1.1.x-1.0.0
-      backend-vm: benchmark-backend-${{ matrix.protocol }}
-      backend-image: benchmark-server-image
       backend-app: backend-rn-1.1.x-1.0.0
       simulations: ${{ inputs.simulations || 'TextPlain;Echo;JsonGet;JsonPost;HtmlGet;Remote' }}
       duration: ${{ inputs.duration || '10' }}
