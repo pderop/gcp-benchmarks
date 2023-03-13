@@ -110,7 +110,7 @@ jobs:
       PROJECT_ID: ${{ secrets.GCP_PROJECT }}
       FRONTEND_IMAGE: 'benchmark-server-image'
       BACKEND_IMAGE: 'benchmark-server-image'
-      CLIENT_IMAGE: 'benchmark-gatling-image'
+      GATLING_IMAGE: 'benchmark-gatling-image'
       FRONTEND_APP: ${{ inputs.frontend-app }}
       BACKEND_APP: ${{ inputs.backend-app }}
       PROTOCOL: ${{ inputs.protocol }}
@@ -127,7 +127,7 @@ jobs:
     steps:
       - name: Setup env
         run: |-
-          echo "CLIENT_VM=$(echo client-$PROTOCOL | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "GATLING_VM=$(echo gatling-$PROTOCOL | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
           echo "FRONTEND_VM=$(echo frontend-$PROTOCOL | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
           if [ -n $BACKEND_APP ]; then echo "BACKEND_VM=$(echo backend-$PROTOCOL | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV; fi
 
@@ -174,7 +174,7 @@ jobs:
           fi
 
       # Create the server VM
-      - name: Create frontend/backend servers
+      - name: Create frontend/backend vms
         run: |-
           if [ -n $BACKEND_APP ]; then
             echo "Creating backend vm ..."
@@ -202,17 +202,17 @@ jobs:
             --container-env=PROJECT_ID=$PROJECT_ID,BUCKET=$BUCKET,APP=$FRONTEND_APP,PROTOCOL=$PROTOCOL,BACKEND_HOST=${INTERNAL_IP},BACKEND_PORT=8090 | \
           sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'            
 
-      # Create client VM which will start benchmark
-      - name: Create Client
+      # Create Gatling VM which will start benchmark
+      - name: Create Gatling vm
         run: |-
           INTERNAL_IP=`gcloud compute instances list --filter="name=$FRONTEND_VM" --format='value(networkInterfaces[0].networkIP)'`
-          gcloud compute instances create-with-container $CLIENT_VM \
+          gcloud compute instances create-with-container $GATLING_VM \
             --machine-type=$MACHINE_TYPE \
             --scopes="userinfo-email,storage-rw" \
             --zone=$ZONE \
             --tags=benchmark-tag \
             --network=default \
-            --container-image=gcr.io/$PROJECT_ID/$CLIENT_IMAGE:latest \
+            --container-image=gcr.io/$PROJECT_ID/$GATLING_IMAGE:latest \
             --container-restart-policy=never \
             --container-env="BUCKET=$BUCKET,SERVER_HOST=${INTERNAL_IP},SERVER_PORT=8080,SIMULATIONS=$SIMULATIONS,INCREMENT=$INCREMENT,STEPS=$STEPS,DURATION=$DURATION,APP_NAME=$APP_NAME,PROTOCOL=$PROTOCOL" | \
           sed -E 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/xxx.xxx.xxx.xxx/g'
@@ -269,12 +269,12 @@ jobs:
         if: always()
         run: |-
           set +e
-          echo "Client logs:"
-          container_id=$(gcloud compute ssh $CLIENT_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
-            tr '\r' '\n' | grep $CLIENT_VM | cut -d ' ' -f 1)
-          gcloud compute ssh $CLIENT_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
-          echo "Deleting client"
-          gcloud compute instances delete $CLIENT_VM --quiet --zone $ZONE | echo
+          echo "Gatling logs:"
+          container_id=$(gcloud compute ssh $GATLING_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
+            tr '\r' '\n' | grep $GATLING_VM | cut -d ' ' -f 1)
+          gcloud compute ssh $GATLING_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker logs $container_id"
+          echo "Deleting gatling vm"
+          gcloud compute instances delete $GATLING_VM --quiet --zone $ZONE | echo
           echo "Frontend logs:"
           container_id=$(gcloud compute ssh $FRONTEND_VM --zone=$ZONE --project=$GCP_PROJECT --command "docker ps -a" | \
             tr '\r' '\n' | grep $FRONTEND_VM | cut -d ' ' -f 1)

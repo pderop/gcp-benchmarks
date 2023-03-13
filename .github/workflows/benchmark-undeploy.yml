@@ -7,7 +7,3 @@ jobs:
   benchmark-cleanup:
     uses: ./.github/workflows/ci-benchmark-undeploy.yml
     secrets: inherit
-    with:
-      client-vm: benchmark-gatling
-      frontend-vm: benchmark-frontend
-      backend-vm: benchmark-backend
