@@ -14,4 +14,4 @@ shadowJar {
 project.tasks.distTar.dependsOn(shadowJar)
 project.tasks.distZip.dependsOn(shadowJar)
 project.tasks.startScripts.dependsOn(shadowJar)
-project.tasks.startShadowScripts.dependsOn(':gateway-rn-1.1.x:jar')
+project.tasks.startShadowScripts.dependsOn(':frontend-rn-1.1.x:jar')

@@ -1,4 +1,4 @@
 include 'gatling'
-include 'gateway-rn-1.1.x'
+include 'frontend-rn-1.1.x'
 include 'backend-rn-1.1.x'
 
