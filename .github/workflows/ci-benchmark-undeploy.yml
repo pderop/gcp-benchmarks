@@ -1,4 +1,4 @@
-name: benchmark-undeploy
+name: ci-benchmark-undeploy
 
 on:
   workflow_call:

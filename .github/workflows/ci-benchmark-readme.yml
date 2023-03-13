@@ -1,4 +1,4 @@
-name: benchmark-readme
+name: ci-benchmark-readme
 
 on:
   workflow_call:

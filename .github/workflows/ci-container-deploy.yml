@@ -1,4 +1,4 @@
-name: containers-deploy
+name: ci-containers-deploy
 
 on:
   workflow_call:
