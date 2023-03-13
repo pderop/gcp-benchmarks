@@ -5,7 +5,7 @@ on:
 
 jobs:
   benchmark-deploy-debug:
-    uses: ./.github/workflows/actions/ci-benchmark-deploy-debug.yml
+    uses: pderop/gcp-benchmarks/.github/workflows/actions/ci-benchmark-deploy-debug.yml@main
     secrets: inherit
     with:
       client-vm: benchmark-gatling
