@@ -294,7 +294,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: results-${{ env.APP_NAME }}
-          path: bench
+          path: bench/${{ env.APP_NAME }}
           if-no-files-found: warn
           retention-days: 90
 
