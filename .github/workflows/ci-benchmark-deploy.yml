@@ -127,9 +127,9 @@ jobs:
     steps:
       - name: Setup env
         run: |-
-          echo "CLIENT_VM=$(echo client-$APP_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-          echo "FRONTEND_VM=$(echo frontend-$APP_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-          if [ -n $BACKEND_APP ]; then echo "BACKEND_VM=$(echo backend-$APP_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV; fi
+          echo "CLIENT_VM=$(echo client-$PROTOCOL | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "FRONTEND_VM=$(echo frontend-$PROTOCOL | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          if [ -n $BACKEND_APP ]; then echo "BACKEND_VM=$(echo backend-$PROTOCOL | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV; fi
 
       - uses: actions/checkout@v3
         with:
