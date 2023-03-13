@@ -5,7 +5,7 @@ on:
 
 jobs:
   container-deploy:
-    uses: ./.github/actions/ci-container-deploy.yml
+    uses: ./.github/workflows/ci-container-deploy.yml
     secrets: inherit
     with:
       gatling-image: benchmark-gatling-image
