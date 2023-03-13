@@ -74,7 +74,6 @@ jobs:
     # Create the server VM (it will move all jars from bucket/server into the VM)
     - name: Create frontend VM
       run: |-
-        git checkout main
         gcloud compute instances create $FRONTEND_VM \
           --machine-type=$MACHINE_TYPE \
           --scopes="userinfo-email,storage-rw" \
@@ -105,10 +104,8 @@ jobs:
     # Create client VM
     - name: Create Client VM
       run: |-
-        git checkout ${GITHUB_REF##*/}
         tar zcf /tmp/gatling.tgz .
         gsutil cp /tmp/gatling.tgz gs://$BUCKET/client/
-        git checkout main
         INTERNAL_IP=`gcloud compute instances list --filter="name=$FRONTEND_VM" --format='value(networkInterfaces[0].networkIP)'`
         gcloud compute instances create $CLIENT_VM \
           --machine-type=$MACHINE_TYPE \

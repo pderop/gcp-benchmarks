@@ -68,14 +68,11 @@ jobs:
     - name: Build containers
       run: |-
         if [ -n $GATLING_IMAGE ]; then
-          git checkout ${GITHUB_REF##*/}
           ./gradlew gatling:build
           cp gatling/build/libs/gatling*-all.jar /tmp
-          git checkout main
           cp /tmp/gatling-*-all.jar containers/gatling/
           docker build --tag "gcr.io/$PROJECT_ID/$GATLING_IMAGE:latest" containers/gatling
         fi
-        git checkout main
         docker build --tag "gcr.io/$PROJECT_ID/$SERVER_IMAGE:latest" containers/server
 
     # Push the Docker image to Google Container Registry

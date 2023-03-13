@@ -1,0 +1,49 @@
+plugins {
+    id 'application'
+    id 'java'
+    id 'com.google.osdetector' version '1.7.3'
+}
+
+group 'org.example'
+version '1.1.x'
+
+sourceCompatibility = 19
+targetCompatibility = 19
+
+ext {
+    os_suffix = ""
+    if (osdetector.classifier in ['linux-x86_64'] || ['osx-x86_64'] || ['osx-aarch_64'] || ['windows-x86_64']) {
+        os_suffix = ":" + osdetector.classifier
+    }
+
+    reactorCoreVersion='3.5.4-SNAPSHOT'
+    reactorNettyVersion='1.1.5-SNAPSHOT'
+    boringSslVersion = '2.0.59.Final'
+    bouncycastleVersion = '1.70'
+    logbackVersion = '1.2.11'
+}
+
+subprojects {
+    version='1.1.x'
+
+    apply plugin: 'java'
+    apply plugin: 'com.google.osdetector'
+
+    repositories {
+        mavenLocal()
+        maven { url 'https://repo.spring.io/snapshot' }
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation "io.projectreactor:reactor-core:${reactorCoreVersion}"
+        implementation "io.projectreactor.netty:reactor-netty-core:${reactorNettyVersion}"
+        implementation "io.projectreactor.netty:reactor-netty-http:${reactorNettyVersion}"
+
+        implementation "io.netty:netty-tcnative-boringssl-static:${boringSslVersion}${os_suffix}"
+        implementation "org.bouncycastle:bcpkix-jdk15on:${bouncycastleVersion}"
+
+        implementation "ch.qos.logback:logback-classic:${logbackVersion}"
+        implementation "com.fasterxml.jackson.core:jackson-databind:2.14.1"
+    }
+}

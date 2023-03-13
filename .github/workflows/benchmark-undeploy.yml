@@ -1,0 +1,13 @@
+name: benchmark-undeploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  benchmark-cleanup:
+    uses: ./.github/actions/ci-benchmark-undeploy.yml
+    secrets: inherit
+    with:
+      client-vm: benchmark-gatling
+      frontend-vm: benchmark-frontend
+      backend-vm: benchmark-backend

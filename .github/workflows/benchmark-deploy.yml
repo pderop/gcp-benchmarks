@@ -1,0 +1,79 @@
+##
+# github actions for gateway application based on reactor-netty 1.1.x
+##
+name: benchmark-deploy
+
+on:
+#  schedule:
+#    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      simulations:
+        description: 'List of simulation applications:'
+        required: false
+        type: string
+        default: 'TextPlain'
+      duration:
+        description: 'Test duration (in minutes):'
+        required: false
+        type: string
+        default: '1'
+      increment:
+        description: 'Gatling increment:'
+        required: false
+        type: string
+        default: '128'
+      steps:
+        description: 'Gatling steps:'
+        required: false
+        type: string
+        default: '32'
+      alert-threshold:
+        description: 'Alert threshold like "150%". Percentage indicating how worse the current benchmark result is, e.g: 150% means that an alert happens when current benchmark result is 1.5x worse than previous:'
+        required: false
+        type: string
+        default: '125%'
+      force-bench:
+        type: boolean
+        description: Forces benchmark even if there's no changes
+        default: true
+        required: false
+
+jobs:
+
+  deploy-benchmark:
+    strategy:
+      max-parallel: 3
+      matrix:
+        protocol: [ H1, H1S, H2 ]
+    uses: ./.github/actions/ci-benchmark-deploy.yml
+    secrets: inherit
+    permissions:
+      contents: write
+    with:
+      appname: benchmark-rn-1.1.x-${{ matrix.protocol }}
+      protocol: ${{ matrix.protocol }}
+      client-vm: benchmark-gatling-${{ matrix.protocol }}
+      client-image: benchmark-gatling-image
+      frontend-vm: benchmark-frontend-${{ matrix.protocol }}
+      frontend-image: benchmark-server-image
+      frontend-app: gateway-rn-1.1.x-1.0.0
+      backend-vm: benchmark-backend-${{ matrix.protocol }}
+      backend-image: benchmark-server-image
+      backend-app: backend-rn-1.1.x-1.0.0
+      simulations: ${{ inputs.simulations || 'TextPlain;Echo;JsonGet;JsonPost;HtmlGet;Remote' }}
+      duration: ${{ inputs.duration || '10' }}
+      increment: ${{ inputs.increment || '128' }}
+      steps: ${{ inputs.steps || '32' }}
+      alert-threshold: ${{ inputs.alert-threshold || '125%' }}
+      force-bench: ${{ inputs.force-bench }}
+      dependencies: |
+        reactor;reactor-netty;1.1.x
+        reactor;reactor-core;main
+
+  update-readme:
+    uses: ./.github/actions/ci-benchmark-readme.yml
+    needs: [ deploy-benchmark ]
+    secrets: inherit
+    permissions:
+      contents: write
