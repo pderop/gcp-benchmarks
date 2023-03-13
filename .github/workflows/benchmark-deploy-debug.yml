@@ -5,7 +5,7 @@ on:
 
 jobs:
   benchmark-deploy-debug:
-    uses: ./.github/actions/ci-benchmark-deploy-debug.yml
+    uses: ./.github/actions/ci-benchmark-deploy-debug.yml@main
     secrets: inherit
     with:
       client-vm: benchmark-gatling
